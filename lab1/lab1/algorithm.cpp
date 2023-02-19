@@ -112,64 +112,39 @@ void find_two_other_points_of_the_searched_circle(std::vector<Point> &point_arra
     out_point2 = point_array[point2_index];
 }
 
-#define R 1.0 // Can be anything greater than 0
 Point get_circle_center(Point &point1, Point &point2, Point &point3) {
-    Point ab_mid, bc_mid;
+    /*
+    Find circle center from the following system of equations:
+      { (x1 - x0)^2 + (y1 - y0)^2 = r^2
+      { (x2 - x0)^2 + (y2 - y0)^2 = r^2
+      { (x3 - x0)^2 + (y3 - y0)^2 = r^2
 
-    ab_mid.x = (point1.x + point2.x) / 2.0;
-    ab_mid.y = (point1.y + point2.y) / 2.0;
+    which we can simplify:
+      { (x1 - x0)^2 + (y1 - y0)^2 = (x2 - x0)^2 + (y2 - y0)^2
+      { (x1 - x0)^2 + (y1 - y0)^2 = (x3 - x0)^2 + (y3 - y0)^2
 
-    bc_mid.x = (point2.x + point3.x) / 2.0;
-    bc_mid.y = (point2.y + point3.y) / 2.0;
+    and give the result in the following form:
+      x0 = (A - B) / (C - D)
+      y0 = -C * x0 + A
 
-    double ab_mid_perp_equation_k = 0.0;
-    double ab_mid_perp_equation_x0 = ab_mid.x;
-    double ab_mid_perp_equation_y0 = ab_mid.y;
+    where A, B, C, D - some functions of x1, y1, x2, y2, x3, y3.
+    */
+    double x1 = point1.x;
+    double y1 = point1.y;
+    double x2 = point2.x;
+    double y2 = point2.y;
+    double x3 = point3.x;
+    double y3 = point3.y;
 
-    double bc_mid_perp_equation_k = 0.0;
-    double bc_mid_perp_equation_x0 = bc_mid.x;
-    double bc_mid_perp_equation_y0 = bc_mid.y;
+    double A = (x1 * x1 - x3 * x3 + y1 * y1 - y3 * y3) / (2 * (y1 - y3));
+    double B = (x1 * x1 - x2 * x2 + y1 * y1 - y2 * y2) / (2 * (y1 - y2));
+    double C = (x1 - x3) / (y1 - y3);
+    double D = (x1 - x2) / (y1 - y2);
 
-    bool ab_mid_perp_is_vertical = (point2.x == point1.x);
-    bool bc_mid_perp_is_vertical = (point3.x == point2.x);
+    double xc = (A - B) / (C - D);
+    double yc = -C * xc + A;
 
-    if (!ab_mid_perp_is_vertical) {
-        ab_mid_perp_equation_k = (point2.y - point1.y) / (point2.x - point1.x);
-    }
-
-    if (!bc_mid_perp_is_vertical) {
-        bc_mid_perp_equation_k = (point3.y - point2.y) / (point3.x - point2.x);
-    }
-
-    Point new_point_on_ab_mid_perp;
-    if (!ab_mid_perp_is_vertical) {
-        double k = ab_mid_perp_equation_k;
-        double x0 = ab_mid_perp_equation_x0;
-        double y0 = ab_mid_perp_equation_y0;
-
-        new_point_on_ab_mid_perp = get_point_of_line_lying_on_distance_r_from_x0y0_point_of_the_same_line(k, x0, y0, R);
-    } else {
-        double x0 = ab_mid_perp_equation_x0;
-        double y0 = ab_mid_perp_equation_y0;
-
-        new_point_on_ab_mid_perp = { .x = x0, .y = y0 + R };
-    }
-
-    Point new_point_on_bc_mid_perp;
-    if (!bc_mid_perp_is_vertical) {
-        double k = bc_mid_perp_equation_k;
-        double x0 = bc_mid_perp_equation_x0;
-        double y0 = bc_mid_perp_equation_y0;
-
-        new_point_on_bc_mid_perp = get_point_of_line_lying_on_distance_r_from_x0y0_point_of_the_same_line(k, x0, y0, R);
-    } else {
-        double x0 = bc_mid_perp_equation_x0;
-        double y0 = bc_mid_perp_equation_y0;
-
-        new_point_on_bc_mid_perp = { .x = x0, .y = y0 + R };
-    }
-
-    Point circle_center = get_point_of_lines_intersection(ab_mid, new_point_on_ab_mid_perp, bc_mid, new_point_on_bc_mid_perp);
+    Point circle_center = { .x = xc, .y = yc };
 
     return circle_center;
 }
@@ -226,75 +201,4 @@ double get_angle_rad_between_two_vectors_2d(Point &vec1, Point &vec2) {
 
 double get_angle_rad_between_two_vectors(Point &vec1, Point &vec2) {
     return get_angle_rad_between_two_vectors_2d(vec1, vec2);
-}
-
-Point get_point_of_lines_intersection(Point& p1, Point& p2, Point& pA, Point& pB) {
-    double x1 = p1.x;
-    double x2 = p2.x;
-    double y1 = p1.y;
-    double y2 = p2.y;
-
-    double xA = pA.x;
-    double xB = pB.x;
-    double yA = pA.y;
-    double yB = pB.y;
-
-    double dx1 = x2 - x1;
-    double dy1 = y2 - y1;
-    double k1 = dy1 / dx1;
-    double b1 = k1 * x1 - y1;
-
-    double dxA = xB - xA;
-    double dyA = yB - yA;
-    double kA = dyA / dxA;
-    double bA = kA * xA - yA;
-
-    double intersect_x = 0;
-    double intersect_y = 0;
-
-    // Handle vertical lines cases
-    if (dx1 == 0 || dxA == 0)
-    {
-        if (dx1 == 0)
-        {
-            intersect_x = x1;
-            intersect_y = kA * x1 - bA;
-        }
-        if (dxA == 0)
-        {
-            intersect_x = xA;
-            intersect_y = k1 * xA - b1;
-        }
-    }
-    else
-    {
-        double det = kA - k1;
-        double detX = bA - b1;
-        double detY = k1 * bA - kA * b1;
-
-        intersect_x = detX / det;
-        intersect_y = detY / det;
-    }
-
-    // TODO: handle errors
-
-    Point intersection_point;
-    intersection_point.x = intersect_x;
-    intersection_point.y = intersect_y;
-
-    return intersection_point;
-}
-
-Point get_point_of_line_lying_on_distance_r_from_x0y0_point_of_the_same_line(double line_slope_coefficient, double x0, double y0, double r) {
-    double k = line_slope_coefficient;
-
-    double numerator = -x0 + std::sqrt(k * k * (r * r - x0 * x0) + r * r);
-    double denominator = k * k + 1;
-
-    double new_x = numerator / denominator;
-    double new_y = k * (new_x - x0) + y0;
-
-    Point point = { .x = new_x, .y = new_y };
-
-    return point;
 }

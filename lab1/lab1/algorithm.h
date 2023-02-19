@@ -23,8 +23,6 @@ double get_circle_radius(Point &point1, Point &point2, Point &point3);
 bool is_valid_triangle(Point &point1, Point &point2, Point &point3);
 double get_distance(Point &point1, Point &point2);
 double get_angle_rad_between_two_vectors(Point &vec1, Point &vec2);
-Point get_point_of_lines_intersection(Point& p1, Point& p2, Point& pA, Point& pB);
-Point get_point_of_line_lying_on_distance_r_from_x0y0_point_of_the_same_line(double line_slope_coefficient, double x0, double y0, double r);
 #endif // __ALGORITHM_PRIVATE__
 
 #endif // __ALGORITHM_H__
