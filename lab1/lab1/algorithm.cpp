@@ -68,10 +68,10 @@ Point find_special_point(std::vector<Point> &point_array) {
     int special_point_index = 0;
     double min_sum_of_distances = std::numeric_limits<double>::infinity();
 
-    for (int i = 0; i < point_array.size() - 1; i++) {
+    for (int i = 0; i < point_array.size(); i++) {
         double sum_of_distances = 0.0; // from point i to all points j
 
-        for (int j = i + 1; j < point_array.size(); j++) {
+        for (int j = 0; j < point_array.size(); j++) {
             sum_of_distances += get_distance(point_array[i], point_array[j]);
         }
 
