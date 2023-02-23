@@ -27,17 +27,16 @@
    8) Отсортировать точки в полученных шестиугольниках
    9) Найти область пересечения двух шестиугольников (которая будет выпуклым
    многоугольником)
-   10) Удалить дубликаты точек из полученного многоугольника-пересечения
-   11) Найти какую-нибудь точку внутри полученного многоугольника (берём
+   10) Найти какую-нибудь точку внутри полученного многоугольника (берём
    центр масс так как многоугольник выпуклый, и ц. м. точно будет внутри)
-   12) Отсортировать точки в многоугольнике (против/по) часовой стрелке
+   11) Отсортировать точки в многоугольнике (против/по) часовой стрелке
    относительно центра масс
-   13) Найти площадь многоугольника, суммируя площади составляющих его
+   12) Найти площадь многоугольника, суммируя площади составляющих его
    треугольников
 */
 
-error_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points) {
-    error_t return_code = OK;
+err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points) {
+    err_t return_code = OK;
 
     return_code = solve_check_arguments(first_set_points, second_set_points);
 
@@ -101,12 +100,7 @@ error_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_s
 
     std::vector<Point> convex_polygon_of_hexagons_intersection;
     if (return_code == OK) {
-        find_convex_intersection_polygon(hexagon1, hexagon2, convex_polygon_of_hexagons_intersection);
-    }
-
-    // Remove dublicate points from the resulting polygon
-    if (return_code == OK) {
-        remove_dublicate_points_from_polygon(convex_polygon_of_hexagons_intersection);
+        return_code = find_convex_intersection_polygon(hexagon1, hexagon2, convex_polygon_of_hexagons_intersection);
     }
 
     // Find some point (mass center) inside of the CONVEX polygon
@@ -123,61 +117,58 @@ error_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_s
 
     // Calculate area of the convex polygon, adding up areas of triangles which it consists of
     double convex_polygon_area = 0.0;
-    double area_test = 0.0;
     if (return_code == OK) {
         convex_polygon_area = get_area_of_convex_polygon(convex_polygon_of_hexagons_intersection, mass_center);
-        area_test = get_area_of_polygon(convex_polygon_of_hexagons_intersection);
     }
 
     // DEBUG
-    if (return_code != OK) {
-        std::printf("ERROR: %d\n", return_code);
-    } else {
-        std::printf("Point 1: (%lf, %lf)\n", p1.x, p1.y);
-        std::printf("Point 2: (%lf, %lf)\n", p2.x, p2.y);
-        std::printf("Point 3: (%lf, %lf)\n", p3.x, p3.y);
-        std::printf("\n");
-        std::printf("Point A: (%lf, %lf)\n", pa.x, pa.y);
-        std::printf("Point B: (%lf, %lf)\n", pb.x, pb.y);
-        std::printf("Point C: (%lf, %lf)\n", pc.x, pc.y);
-        std::printf("\n");
-        std::printf("Circle center 123: (%lf, %lf)\n", circle_center1.x, circle_center1.y);
-        std::printf("Circle center ABC: (%lf, %lf)\n", circle_center2.x, circle_center2.y);
-        std::printf("\n");
+    // if (return_code != OK) {
+        // std::printf("ERROR: %d\n", return_code);
+    // } else {
+        // std::printf("Point 1: (%lf, %lf)\n", p1.x, p1.y);
+        // std::printf("Point 2: (%lf, %lf)\n", p2.x, p2.y);
+        // std::printf("Point 3: (%lf, %lf)\n", p3.x, p3.y);
+        // std::printf("\n");
+        // std::printf("Point A: (%lf, %lf)\n", pa.x, pa.y);
+        // std::printf("Point B: (%lf, %lf)\n", pb.x, pb.y);
+        // std::printf("Point C: (%lf, %lf)\n", pc.x, pc.y);
+        // std::printf("\n");
+        // std::printf("Circle center 123: (%lf, %lf)\n", circle_center1.x, circle_center1.y);
+        // std::printf("Circle center ABC: (%lf, %lf)\n", circle_center2.x, circle_center2.y);
+        // std::printf("\n");
 
-        std::printf("Hexagon 1:\n");
-        for (Point p: hexagon1) {
-            std::printf("(%lf, %lf)\n", p.x, p.y);
-        }
-        std::printf("\n");
+        // std::printf("Hexagon 1:\n");
+        // for (Point p: hexagon1) {
+            // std::printf("(%lf, %lf)\n", p.x, p.y);
+        // }
+        // std::printf("\n");
 
-        std::printf("Hexagon 2:\n");
-        for (Point p: hexagon2) {
-            std::printf("(%lf, %lf)\n", p.x, p.y);
-        }
-        std::printf("\n");
+        // std::printf("Hexagon 2:\n");
+        // for (Point p: hexagon2) {
+            // std::printf("(%lf, %lf)\n", p.x, p.y);
+        // }
+        // std::printf("\n");
 
-        std::printf("Convex polygon of hexagons intersection:\n");
-        for (Point p: convex_polygon_of_hexagons_intersection) {
-            std::printf("(%lf, %lf)\n", p.x, p.y);
-        }
-        std::printf("Mass center: (%lf, %lf)\n", mass_center.x, mass_center.y);
+        // std::printf("Convex polygon of hexagons intersection:\n");
+        // for (Point p: convex_polygon_of_hexagons_intersection) {
+            // std::printf("(%lf, %lf)\n", p.x, p.y);
+        // }
+        // std::printf("Mass center: (%lf, %lf)\n", mass_center.x, mass_center.y);
 
-        std::printf("Area: %lf\n", convex_polygon_area);
-        std::printf("Area test: %lf\n", area_test);
-    }
+        // std::printf("Area: %lf\n", convex_polygon_area);
+    // }
 
     return return_code;
 }
 
-error_t solve_check_arguments(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points) {
-    error_t return_code = OK;
+err_t solve_check_arguments(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points) {
+    err_t return_code = OK;
 
     // Make sure each set contains at least three points
     if (first_set_points.size() < 3) {
-        return_code = ERR_NOT_ENOUGH_POINTS_IN_FIRST_SET;
+        return_code = ERR::NOT_ENOUGH_POINTS_IN_FIRST_SET;
     } else if (second_set_points.size() < 3) {
-        return_code = ERR_NOT_ENOUGH_POINTS_IN_SECOND_SET;
+        return_code = ERR::NOT_ENOUGH_POINTS_IN_SECOND_SET;
     }
 
     // Make sure there are at least three equidistant points in each set
@@ -187,7 +178,7 @@ error_t solve_check_arguments(std::vector<Point> &first_set_points, std::vector<
         return_code = find_three_equidistant_points(first_set_points, tmp_point1, tmp_point2, tmp_point3);
 
         if (return_code != OK) {
-            return_code = ERR_NO_EQUIDISTANT_POINTS_IN_FIRST_SET;
+            return_code = ERR::NO_EQUIDISTANT_POINTS_IN_FIRST_SET;
         }
     }
 
@@ -197,15 +188,15 @@ error_t solve_check_arguments(std::vector<Point> &first_set_points, std::vector<
         return_code = find_three_equidistant_points(second_set_points, tmp_point1, tmp_point2, tmp_point3);
 
         if (return_code != OK) {
-            return_code = ERR_NO_EQUIDISTANT_POINTS_IN_SECOND_SET;
+            return_code = ERR::NO_EQUIDISTANT_POINTS_IN_SECOND_SET;
         }
     }
 
     return return_code;
 }
 
-error_t find_three_equidistant_points(std::vector<Point> &points, Point &out_point1, Point &out_point2, Point &out_point3) {
-    error_t return_code = OK;
+err_t find_three_equidistant_points(std::vector<Point> &points, Point &out_point1, Point &out_point2, Point &out_point3) {
+    err_t return_code = OK;
 
     bool equidistant_points_found = false;
     int point1_index = 0;
@@ -237,7 +228,7 @@ error_t find_three_equidistant_points(std::vector<Point> &points, Point &out_poi
     }
 
     if (!equidistant_points_found) {
-        return_code = ERR_EQUIDISTANT_POINTS_NOT_FOUND;
+        return_code = ERR::EQUIDISTANT_POINTS_NOT_FOUND;
     } else {
         out_point1 = points[point1_index];
         out_point2 = points[point2_index];
@@ -247,7 +238,9 @@ error_t find_three_equidistant_points(std::vector<Point> &points, Point &out_poi
     return return_code;
 }
 
-void find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector<Point> &polygon2, std::vector<Point> &out_polygon) {
+err_t find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector<Point> &polygon2, std::vector<Point> &out_polygon) {
+    err_t return_code = OK;
+
     std::vector<Point> intersection_polygon;
 
     for (Point p: polygon1) {
@@ -270,7 +263,7 @@ void find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector<
             Point edge_of_polygon2_start = polygon2[j];
             Point edge_of_polygon2_end = polygon2[(j + 1) % polygon2.size()];
 
-            error_t status = OK;
+            err_t status = OK;
             Point intersection_point;
             status = get_line_segments_intersection_point(
                     edge_of_polygon1_start, edge_of_polygon1_end,
@@ -284,7 +277,19 @@ void find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector<
         }
     }
 
-    out_polygon = intersection_polygon;
+    remove_dublicate_points_from_polygon(intersection_polygon);
+
+    if (intersection_polygon.size() == 0) {
+        return_code = ERR::POLYGONS_DO_NOT_INTERSECT;
+    } else if (intersection_polygon.size() < 3) {
+        return_code = ERR::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION;
+    }
+
+    if (return_code == OK) {
+        out_polygon = intersection_polygon;
+    }
+
+    return return_code;
 }
 
 bool is_point_inside_polygon_raycast(Point &point, std::vector<Point> &polygon) {
@@ -301,7 +306,7 @@ bool is_point_inside_polygon_raycast(Point &point, std::vector<Point> &polygon) 
         Point edge_of_polygon_start = polygon[i];
         Point edge_of_polygon_end = polygon[(i + 1) % polygon.size()];
 
-        error_t status = OK;
+        err_t status = OK;
         Point intersection_point;
         status = get_line_segments_intersection_point(
                 edge_of_polygon_start, edge_of_polygon_end,
@@ -390,8 +395,8 @@ Point find_diametrically_opposite_point_on_circle(Point &circle_center, Point &p
     return diametrically_opposite_point_on_circle;
 }
 
-error_t get_line_segments_intersection_point(Point &l1p1, Point &l1p2, Point &l2p1, Point &l2p2, Point &out_intersection_point) {
-    error_t return_code = OK;
+err_t get_line_segments_intersection_point(Point &l1p1, Point &l1p2, Point &l2p1, Point &l2p2, Point &out_intersection_point) {
+    err_t return_code = OK;
 
     double x11 = l1p1.x;
     double x12 = l1p2.x;
@@ -422,9 +427,9 @@ error_t get_line_segments_intersection_point(Point &l1p1, Point &l1p2, Point &l2
 
     if (is_equal(det, 0.0)) {
         if (is_equal(detX, 0.0) && is_equal(detY, 0.0)) {
-            return_code = ERR_LINES_ARE_THE_SAME;
+            return_code = ERR::LINES_ARE_THE_SAME;
         } else {
-            return_code = ERR_LINES_ARE_PARALLEL;
+            return_code = ERR::LINES_ARE_PARALLEL;
         }
     } else {
         double x = detX / det;
@@ -453,7 +458,7 @@ error_t get_line_segments_intersection_point(Point &l1p1, Point &l1p2, Point &l2
         if (intersection_is_on_line1 && intersection_is_on_line2) {
             out_intersection_point = { .x = x, .y = y };
         } else {
-            return_code = ERR_LINE_SEGMENTS_DO_NOT_INTERSECT;
+            return_code = ERR::LINE_SEGMENTS_DO_NOT_INTERSECT;
         }
     }
 
