@@ -117,7 +117,7 @@ error_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_s
 
     // Sort polygon vertices cw around the point found in the previous step
     if (return_code == OK) {
-        auto lambda_less = [&mass_center](Point &a, Point &b) { return is_less_relative_to_center(a, b, mass_center); };
+        auto lambda_less = [&mass_center](Point &a, Point &b) { return are_points_in_clockwise_order(mass_center, a, b); };
         std::sort(convex_polygon_of_hexagons_intersection.begin(), convex_polygon_of_hexagons_intersection.end(), lambda_less);
     }
 
@@ -479,57 +479,6 @@ void remove_dublicate_points_from_polygon(std::vector<Point> &polygon) {
             }
         }
     }
-}
-
-bool is_less_relative_to_center(Point &a, Point &b, Point &center) {
-    // https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
-    bool return_value = false;
-    bool return_value_found = false;
-
-    if (a.x - center.x >= 0 && b.x - center.x < 0) {
-        return_value = true;
-        return_value_found = true;
-    }
-
-    if (!return_value_found && a.x - center.x < 0 && b.x - center.x >= 0) {
-        return_value = false;
-        return_value_found = true;
-    }
-
-    if (!return_value_found && a.x - center.x == 0 && b.x - center.x == 0) {
-        if (a.y - center.y >= 0 || b.y - center.y >= 0) {
-            return_value = a.y > b.y;
-            return_value_found = true;
-        }
-
-        return_value = b.y > a.y;
-        return_value_found = true;
-    }
-
-    // compute the cross product of vectors (center -> a) x (center -> b)
-    if (!return_value_found) {
-        double det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
-
-        if (det < 0) {
-            return_value = true;
-            return_value_found = true;
-        }
-
-        if (det > 0) {
-            return_value = false;
-            return_value_found = true;
-        }
-    }
-
-    // points a and b are on the same line from the center
-    // check which point is closer to the center
-    if (!return_value_found) {
-        double d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-        double d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-        return_value = d1 > d2;
-    }
-
-    return return_value;
 }
 
 double get_signed_area_parallelogram(Point &point1, Point &point2, Point &point3) {

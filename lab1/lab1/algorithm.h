@@ -23,7 +23,6 @@ Point get_mass_center_of_convex_polygon(std::vector<Point> convex_polygon);
 Point find_diametrically_opposite_point_on_circle(Point &circle_center, Point &point_on_circle);
 error_t get_line_segments_intersection_point(Point &l1p1, Point &l1p2, Point &l2p1, Point &l2p2, Point &out_intersection_point);
 void remove_dublicate_points_from_polygon(std::vector<Point> &polygon);
-bool is_less_relative_to_center(Point &a, Point &b, Point &center);
 double get_signed_area_parallelogram(Point &point1, Point &point2, Point &point3);
 double get_triangle_area(Point &point1, Point &point2, Point &point3);
 double get_area_of_convex_polygon(std::vector<Point> &polygon_sorted, Point &point_inside_polygon);
