@@ -6,7 +6,10 @@ std::string get_error_description(Error error) {
 
     switch (error) {
         case OK:
-            description = "No errors.";
+            description = "Info: No errors.";
+            break;
+        case Error::SOLUTION_DATA_UNINITIALIZED:
+            description = "Info: Solution data uninitialized.";
             break;
 
         case Error::NOT_ENOUGH_POINTS_IN_FIRST_SET:
@@ -27,20 +30,20 @@ std::string get_error_description(Error error) {
             break;
 
         case Error::LINES_ARE_PARALLEL:
-            description = "Error: Lines are parallel.";
+            description = "Info: Lines are parallel.";
             break;
         case Error::LINES_ARE_THE_SAME:
-            description = "Error: Lines are the same.";
+            description = "Info: Lines are the same.";
             break;
         case Error::LINE_SEGMENTS_DO_NOT_INTERSECT:
-            description = "Error: Line segments do not intersect.";
+            description = "Info: Line segments do not intersect.";
             break;
 
         case Error::POLYGONS_DO_NOT_INTERSECT:
-            description = "Error: Polygons do not intersect.";
+            description = "Info: Polygons do not intersect.";
             break;
         case Error::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION:
-            description = "Error: Less than three points of polygons intersection.";
+            description = "Info: Less than three points of polygons intersection.";
             break;
     }
 

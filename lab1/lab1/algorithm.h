@@ -4,9 +4,10 @@
 #include <vector>
 #include "point.h"
 #include "error.h"
+#include "solution_data.h"
 
 // This is the only function that has to be avaliable after including algorithm.h
-err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points);
+err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points, SolutionData &out_solution_data);
 
 // Helper-functions used in algorithm.cpp to implement "solve" function
 #ifdef __ALGORITHM_PRIVATE__

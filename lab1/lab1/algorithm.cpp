@@ -35,7 +35,7 @@
    треугольников
 */
 
-err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points) {
+err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points, SolutionData &out_solution_data) {
     err_t return_code = OK;
 
     return_code = solve_check_arguments(first_set_points, second_set_points);
@@ -121,42 +121,24 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
         convex_polygon_area = get_area_of_convex_polygon(convex_polygon_of_hexagons_intersection, mass_center);
     }
 
-    // DEBUG
-    // if (return_code != OK) {
-        // std::printf("ERROR: %d\n", return_code);
-    // } else {
-        // std::printf("Point 1: (%lf, %lf)\n", p1.x, p1.y);
-        // std::printf("Point 2: (%lf, %lf)\n", p2.x, p2.y);
-        // std::printf("Point 3: (%lf, %lf)\n", p3.x, p3.y);
-        // std::printf("\n");
-        // std::printf("Point A: (%lf, %lf)\n", pa.x, pa.y);
-        // std::printf("Point B: (%lf, %lf)\n", pb.x, pb.y);
-        // std::printf("Point C: (%lf, %lf)\n", pc.x, pc.y);
-        // std::printf("\n");
-        // std::printf("Circle center 123: (%lf, %lf)\n", circle_center1.x, circle_center1.y);
-        // std::printf("Circle center ABC: (%lf, %lf)\n", circle_center2.x, circle_center2.y);
-        // std::printf("\n");
+    // Setting solution data
+    if (return_code == OK
+            || return_code == ERR::POLYGONS_DO_NOT_INTERSECT
+            || return_code == ERR::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION)
+    {
+        out_solution_data.set_status(return_code);
 
-        // std::printf("Hexagon 1:\n");
-        // for (Point p: hexagon1) {
-            // std::printf("(%lf, %lf)\n", p.x, p.y);
-        // }
-        // std::printf("\n");
+        out_solution_data.set_first_circle_center(circle_center1);
+        out_solution_data.set_second_circle_center(circle_center2);
 
-        // std::printf("Hexagon 2:\n");
-        // for (Point p: hexagon2) {
-            // std::printf("(%lf, %lf)\n", p.x, p.y);
-        // }
-        // std::printf("\n");
+        out_solution_data.set_first_hexagon(hexagon1);
+        out_solution_data.set_second_hexagon(hexagon2);
 
-        // std::printf("Convex polygon of hexagons intersection:\n");
-        // for (Point p: convex_polygon_of_hexagons_intersection) {
-            // std::printf("(%lf, %lf)\n", p.x, p.y);
-        // }
-        // std::printf("Mass center: (%lf, %lf)\n", mass_center.x, mass_center.y);
+        out_solution_data.set_polygon(convex_polygon_of_hexagons_intersection);
+        out_solution_data.set_polygon_mass_center(mass_center);
 
-        // std::printf("Area: %lf\n", convex_polygon_area);
-    // }
+        out_solution_data.set_area(convex_polygon_area);
+    }
 
     return return_code;
 }
