@@ -18,7 +18,7 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
 err_t solve_check_arguments(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points);
 err_t find_three_equidistant_points(std::vector<Point> &points, Point &out_point1, Point &out_point2, Point &out_point3);
 err_t find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector<Point> &polygon2, std::vector<Point> &out_polygon);
-bool is_point_inside_polygon_raycast(Point &point, std::vector<Point> &polygon);
+bool is_point_inside_polygon(const std::vector<Point>& polygon, const Point& point);
 Point get_circle_center(Point &point1, Point &point2, Point &point3);
 Point get_mass_center_of_convex_polygon(std::vector<Point> convex_polygon);
 Point find_diametrically_opposite_point_on_circle(Point &circle_center, Point &point_on_circle);
@@ -32,6 +32,7 @@ bool are_points_in_clockwise_order(Point &point1, Point &point2, Point &point3);
 bool are_points_on_the_same_line(Point &point1, Point &point2, Point &point3);
 bool is_point_inside_clip_edge(Point &point, Point &clip_edge_start, Point &clip_edge_end);
 double get_distance(Point &point1, Point &point2);
+double get_angle(Point &point1, Point &point2);
 bool is_equal(double x, double y);
 
 #endif // __ALGORITHM_PRIVATE__

@@ -111,7 +111,8 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
 
     // Sort polygon vertices cw around the point found in the previous step
     if (return_code == OK) {
-        auto lambda_less = [&mass_center](Point &a, Point &b) { return are_points_in_clockwise_order(mass_center, a, b); };
+        /* auto lambda_less = [&mass_center](Point &a, Point &b) { return are_points_in_clockwise_order(mass_center, a, b); }; */
+        auto lambda_less = [&mass_center](Point &a, Point &b) { return get_angle(mass_center, a) < get_angle(mass_center, b); };
         std::sort(convex_polygon_of_hexagons_intersection.begin(), convex_polygon_of_hexagons_intersection.end(), lambda_less);
     }
 
@@ -226,13 +227,15 @@ err_t find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector
     std::vector<Point> intersection_polygon;
 
     for (Point p: polygon1) {
-        if (is_point_inside_polygon_raycast(p, polygon2)) {
+        /* if (is_point_inside_polygon_raycast(p, polygon2)) { */
+        if (is_point_inside_polygon(polygon2, p)) {
             intersection_polygon.push_back(p);
         }
     }
 
     for (Point p: polygon2) {
-        if (is_point_inside_polygon_raycast(p, polygon1)) {
+        /* if (is_point_inside_polygon_raycast(p, polygon1)) { */
+        if (is_point_inside_polygon(polygon1, p)) {
             intersection_polygon.push_back(p);
         }
     }
@@ -274,40 +277,21 @@ err_t find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector
     return return_code;
 }
 
-bool is_point_inside_polygon_raycast(Point &point, std::vector<Point> &polygon) {
-    // TODO: edge-cases, make more precise
-    double infinity = 10000.0;
+bool is_point_inside_polygon(const std::vector<Point>& polygon, const Point& point) {
+    bool is_inside = false;
 
-    // Infinite horizontal ray to the right of the point
-    Point ray_start = point;
-    Point ray_end = { .x = infinity, .y = point.y };
-
-    int intersections_count = 0;
-
-    for (int i = 0; i < polygon.size(); i++) {
-        Point edge_of_polygon_start = polygon[i];
-        Point edge_of_polygon_end = polygon[(i + 1) % polygon.size()];
-
-        err_t status = OK;
-        Point intersection_point;
-        status = get_line_segments_intersection_point(
-                edge_of_polygon_start, edge_of_polygon_end,
-                ray_start, ray_end,
-                intersection_point
-                );
-
-        if (status == OK) {
-            intersections_count++;
+    // The function loops over all edges of the polygon, and for each edge, it
+    // checks whether the point is to the left or to the right of the edge using
+    // the cross product. If the point is on the left side of an odd number of
+    // edges, then it is inside the polygon.
+    for (int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+        if (((polygon[i].y > point.y) != (polygon[j].y > point.y)) &&
+            (point.x < (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x)) {
+            is_inside = !is_inside;
         }
     }
 
-    bool result = false;
-
-    if (intersections_count % 2 != 0) {
-        result = true;
-    }
-
-    return result;
+    return is_inside;
 }
 
 Point get_circle_center(Point &point1, Point &point2, Point &point3) {
@@ -547,6 +531,10 @@ double get_distance_2d(Point &point1, Point &point2) {
 
 double get_distance(Point &point1, Point &point2) {
     return get_distance_2d(point1, point2);
+}
+
+double get_angle(Point &point1, Point &point2) {
+    return atan2(point2.y - point1.y, point2.x - point1.x);
 }
 
 #define EPSILON 1e-09
