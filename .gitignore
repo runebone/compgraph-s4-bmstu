@@ -1,2 +1,4 @@
 done/**
 *.pdf
+CMakeLists.txt.user
+**/build**/**
