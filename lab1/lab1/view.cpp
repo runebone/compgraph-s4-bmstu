@@ -10,8 +10,9 @@
 
 enum Side { LEFT, RIGHT, UP, DOWN };
 
-#define FIRST_SET_COLOR QColor("#ff0000")
-#define SECOND_SET_COLOR QColor("#0000ff")
+#define FIRST_SET_COLOR QColor("#ef2f27")
+#define SECOND_SET_COLOR QColor("#2c78bf")
+#define SELECT_COLOR QColor("#fbb829")
 #define POINT_SIZE 5.0
 #define MAX_PEN_WIDTH 100.0
 #define MIN_ZOOM 1e-07
@@ -52,7 +53,17 @@ class PointItem : public QGraphicsEllipseItem
 {
 public:
     enum { Type = UserType + 1 }; // Override the item type
-    PointItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = nullptr) : QGraphicsEllipseItem(x, y, w, h, parent) {}
+
+    PointItem(qreal x, qreal y, qreal w, qreal h, QColor color, QGraphicsItem *parent = nullptr) : QGraphicsEllipseItem(0, 0, w, h, parent)
+    {
+        this->setPos(x - w/2, -y - h/2); // AOAOA
+        this->set_pos(x, -y); // AOAOA
+
+        this->setPen(QPen(Qt::NoPen));
+        this->setBrush(color);
+
+        this->color = color;
+    }
 
     int type() const override { return Type; } // Override the type() function
 
@@ -65,24 +76,35 @@ public:
         return QPointF(this->x, this->y);
     }
 
+    void toggle_selected(qreal width) {
+        this->is_selected = !this->is_selected;
+
+        if (this->is_selected) {
+            width *= 25;
+            QPen pen = this->pen();
+            if (width < MAX_PEN_WIDTH) {
+                pen.setStyle(Qt::SolidLine);
+                pen.setColor(SELECT_COLOR);
+                pen.setWidthF(width);
+            }
+            this->setPen(pen);
+        } else {
+            this->setPen(QPen(Qt::NoPen));
+            this->setBrush(this->color);
+        }
+    }
+
 private:
     qreal x, y;
+    QColor color;
+    bool is_selected = 0;
 };
 
 void View::draw_point(const Point &point, const QColor &color) {
-    qreal x = 0;
-    qreal y = 0;
     qreal w = POINT_SIZE;
     qreal h = POINT_SIZE;
-    PointItem *point_figure = new PointItem(x, y, w, h);
 
-    point_figure->setPos(point.x - w/2, -point.y - h/2); // AOAOA
-    // point_figure->setPos(point.x, -point.y); // AOAOA
-
-    point_figure->set_pos(point.x, -point.y); // AOAOA
-
-    point_figure->setPen(QPen(Qt::NoPen));
-    point_figure->setBrush(color);
+    PointItem *point_figure = new PointItem(point.x, point.y, w, h, color);
 
     this->scene->addItem(point_figure);
 }
@@ -215,13 +237,10 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
         qreal new_width = rect.width() * scale_factor;
         qreal new_height = rect.height() * scale_factor;
 
-        // pointItem->setRect(rect.x(), rect.y(), new_width, new_height);
         QPointF pos = pointItem->get_pos();
 
         pointItem->setRect(0, 0, new_width, new_height);
         pointItem->setPos(pos.x() - new_width/2, pos.y() - new_height/2);
-
-        // pointItem->setPen(QPen(Qt::green));
 
     } else if (item->type() == QGraphicsPolygonItem::Type) {
         QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
