@@ -44,7 +44,11 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGraphicsView" name="graphicsView"/>
+         <widget class="QGraphicsView" name="graphicsView">
+          <property name="dragMode">
+           <enum>QGraphicsView::NoDrag</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="descriptionLabel">

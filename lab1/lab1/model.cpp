@@ -41,5 +41,5 @@ err_t Model::generate_solution_data()
 void Model::solve_model()
 {
     this->generate_solution_data();
-    std::printf("%d\n", this->solution_data.get_status());
+    std::printf("Solution status: %d\n", this->solution_data.get_status());
 }
