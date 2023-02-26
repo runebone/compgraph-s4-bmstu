@@ -35,25 +35,52 @@
    треугольников
 */
 
+#include <chrono>
+#include <iostream>
+#include <string>
+class Timer {
+public:
+    Timer(std::string str) {
+        start_ = std::chrono::high_resolution_clock::now();
+
+        this->str = str;
+    }
+
+    ~Timer() {
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start_).count();
+        std::cout << "Time taken (" << this->str << "): " << duration << " microseconds" << std::endl;
+    }
+
+private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+    std::string str;
+};
+
 err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points, SolutionData &out_solution_data) {
     err_t return_code = OK;
 
     return_code = solve_check_arguments(first_set_points, second_set_points);
 
+    Timer *t = new Timer("equidistant points");
     Point p1, p2, p3;
     Point pa, pb, pc;
     if (return_code == OK) {
         find_three_equidistant_points(first_set_points, p1, p2, p3);
         find_three_equidistant_points(second_set_points, pa, pb, pc);
     }
+    delete t;
 
+    t = new Timer("circle centers");
     Point circle_center1;
     Point circle_center2;
     if (return_code == OK) {
         circle_center1 = get_circle_center(p1, p2, p3);
         circle_center2 = get_circle_center(pa, pb, pc);
     }
+    delete t;
 
+    t = new Timer("diametrically opposites");
     Point p1_diametrically_opposite;
     Point p2_diametrically_opposite;
     Point p3_diametrically_opposite;
@@ -69,7 +96,9 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
         pb_diametrically_opposite = find_diametrically_opposite_point_on_circle(circle_center2, pb);
         pc_diametrically_opposite = find_diametrically_opposite_point_on_circle(circle_center2, pc);
     }
+    delete t;
 
+    t = new Timer("hexagons");
     // Create two vectors, each containing points of hexagon is cw order
     std::vector<Point> hexagon1;
     std::vector<Point> hexagon2;
@@ -97,31 +126,41 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
         hexagon2.push_back(pc);
         hexagon2.push_back(pb_diametrically_opposite);
     }
+    delete t;
 
+    t = new Timer("intersection polygon");
     std::vector<Point> convex_polygon_of_hexagons_intersection;
     if (return_code == OK) {
         return_code = find_convex_intersection_polygon(hexagon1, hexagon2, convex_polygon_of_hexagons_intersection);
     }
+    delete t;
 
+    t = new Timer("mass center");
     // Find some point (mass center) inside of the CONVEX polygon
     Point mass_center;
     if (return_code == OK) {
         mass_center = get_mass_center_of_convex_polygon(convex_polygon_of_hexagons_intersection);
     }
+    delete t;
 
+    t = new Timer("sorting polygon vertices");
     // Sort polygon vertices cw around the point found in the previous step
     if (return_code == OK) {
         /* auto lambda_less = [&mass_center](Point &a, Point &b) { return are_points_in_clockwise_order(mass_center, a, b); }; */
         auto lambda_less = [&mass_center](Point &a, Point &b) { return get_angle(mass_center, a) < get_angle(mass_center, b); };
         std::sort(convex_polygon_of_hexagons_intersection.begin(), convex_polygon_of_hexagons_intersection.end(), lambda_less);
     }
+    delete t;
 
+    t = new Timer("calculating area");
     // Calculate area of the convex polygon, adding up areas of triangles which it consists of
     double convex_polygon_area = 0.0;
     if (return_code == OK) {
         convex_polygon_area = get_area_of_convex_polygon(convex_polygon_of_hexagons_intersection, mass_center);
     }
+    delete t;
 
+    t = new Timer("setting solution data");
     // Setting solution data
     if (return_code == OK
             || return_code == ERR::POLYGONS_DO_NOT_INTERSECT
@@ -132,6 +171,12 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
         out_solution_data.set_first_circle_center(circle_center1);
         out_solution_data.set_second_circle_center(circle_center2);
 
+        double first_circle_radius = get_distance(hexagon1[0], circle_center1);
+        double second_circle_radius = get_distance(hexagon2[0], circle_center2);
+
+        out_solution_data.set_first_circle_radius(first_circle_radius);
+        out_solution_data.set_second_circle_radius(second_circle_radius);
+
         out_solution_data.set_first_hexagon(hexagon1);
         out_solution_data.set_second_hexagon(hexagon2);
 
@@ -140,6 +185,7 @@ err_t solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set
 
         out_solution_data.set_area(convex_polygon_area);
     }
+    delete t;
 
     return return_code;
 }
@@ -262,7 +308,9 @@ err_t find_convex_intersection_polygon(std::vector<Point> &polygon1, std::vector
         }
     }
 
-    remove_dublicate_points_from_polygon(intersection_polygon);
+    if (intersection_polygon.size() > 1) {
+        remove_dublicate_points_from_polygon(intersection_polygon);
+    }
 
     if (intersection_polygon.size() == 0) {
         return_code = ERR::POLYGONS_DO_NOT_INTERSECT;
