@@ -20,6 +20,22 @@ err_t SolutionData::get_second_circle_center(Point &out_circle_center) {
     return this->status;
 }
 
+err_t SolutionData::get_first_circle_radius(double &out_circle_radius) {
+    if (this->status != ERR::SOLUTION_DATA_UNINITIALIZED) {
+        out_circle_radius = this->circle_radius1;
+    }
+
+    return this->status;
+}
+
+err_t SolutionData::get_second_circle_radius(double &out_circle_radius) {
+    if (this->status != ERR::SOLUTION_DATA_UNINITIALIZED) {
+        out_circle_radius = this->circle_radius2;
+    }
+
+    return this->status;
+}
+
 err_t SolutionData::get_first_hexagon(std::vector<Point> &out_hexagon) {
     if (this->status != ERR::SOLUTION_DATA_UNINITIALIZED) {
         out_hexagon = this->hexagon1;
@@ -70,6 +86,14 @@ void SolutionData::set_first_circle_center(const Point &circle_center) {
 
 void SolutionData::set_second_circle_center(const Point &circle_center) {
     this->circle_center2 = circle_center;
+}
+
+void SolutionData::set_first_circle_radius(double circle_radius) {
+    this->circle_radius1 = circle_radius;
+}
+
+void SolutionData::set_second_circle_radius(double circle_radius) {
+    this->circle_radius2 = circle_radius;
 }
 
 void SolutionData::set_first_hexagon(const std::vector<Point> &hexagon) {
