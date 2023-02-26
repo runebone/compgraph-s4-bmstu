@@ -8,9 +8,11 @@
 #include <cstdio>
 #include "point.h"
 
+enum Side { LEFT, RIGHT, UP, DOWN };
+
 #define FIRST_SET_COLOR QColor("#ff0000")
 #define SECOND_SET_COLOR QColor("#0000ff")
-#define POINT_SIZE 4.0
+#define POINT_SIZE 5.0
 #define MAX_PEN_WIDTH 100.0
 #define MIN_ZOOM 1e-07
 #define MAX_ZOOM 200.0
@@ -50,7 +52,7 @@ class PointItem : public QGraphicsEllipseItem
 {
 public:
     enum { Type = UserType + 1 }; // Override the item type
-    PointItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = nullptr) : QGraphicsEllipseItem(x, y, w, h, parent) {};
+    PointItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = nullptr) : QGraphicsEllipseItem(x, y, w, h, parent) {}
 
     int type() const override { return Type; } // Override the type() function
 
@@ -74,8 +76,8 @@ void View::draw_point(const Point &point, const QColor &color) {
     qreal h = POINT_SIZE;
     PointItem *point_figure = new PointItem(x, y, w, h);
 
-    // point_figure->setPos(point.x - w/2, -(point.y - h/2)); // AOAOA
-    point_figure->setPos(point.x, -(point.y)); // AOAOA
+    point_figure->setPos(point.x - w/2, -point.y - h/2); // AOAOA
+    // point_figure->setPos(point.x, -point.y); // AOAOA
 
     point_figure->set_pos(point.x, -point.y); // AOAOA
 
@@ -100,9 +102,14 @@ void View::draw_polygon(const std::vector<Point> &polygon, const QColor &color)
 
 void View::draw_circle(const Point &center, double radius, const QColor &color)
 {
-    QGraphicsEllipseItem *circle_figure = new QGraphicsEllipseItem(0, 0, 1 * radius, 1 * radius);
-    circle_figure->setPos(center.x, -center.y); // AOAOA
-    circle_figure->setPen(QPen(color));
+    qreal x = 0;
+    qreal y = 0;
+    qreal w = 2 * radius;
+    qreal h = 2 * radius;
+    QGraphicsEllipseItem *circle_figure = new QGraphicsEllipseItem(x, y, w, h);
+
+    circle_figure->setPos(center.x - w/2, -center.y - h/2); // AOAOA
+    circle_figure->setPen(QPen(color, 1));
 
     this->scene->addItem(circle_figure);
 }
@@ -208,11 +215,11 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
         qreal new_width = rect.width() * scale_factor;
         qreal new_height = rect.height() * scale_factor;
 
-        // QPointF pos = pointItem->get_pos();
+        // pointItem->setRect(rect.x(), rect.y(), new_width, new_height);
+        QPointF pos = pointItem->get_pos();
 
-        pointItem->setRect(rect.x(), rect.y(), new_width, new_height);
-        // pointItem->setRect(0, 0, new_width, new_height);
-        // pointItem->setPos(pos.x() - new_width/2, -(pos.y() - new_height/2));
+        pointItem->setRect(0, 0, new_width, new_height);
+        pointItem->setPos(pos.x() - new_width/2, pos.y() - new_height/2);
 
         // pointItem->setPen(QPen(Qt::green));
 
@@ -227,28 +234,48 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
 
     } else if (item->type() == QGraphicsEllipseItem::Type) {
         QGraphicsEllipseItem* ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem*>(item);
+
+        QPen pen = ellipseItem->pen();
+        if (sf < MAX_PEN_WIDTH) {
+            pen.setWidthF(sf);
+        }
+        ellipseItem->setPen(pen);
     }
 }
 
-enum Side {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-};
+void move_point(QGraphicsItem *item, qreal dx, qreal dy) {
+    // == Assert that item is point
+    if (item->type() == PointItem::Type) {
+        PointItem* pointItem = qgraphicsitem_cast<PointItem*>(item);
+        QPointF pos = pointItem->get_pos();
+        pointItem->set_pos(pos.x() + dx, pos.y() + dy);
+    }
+}
 
 void move_item(QGraphicsItem *item, qreal translate_speed, qreal sf, Side where) {
     if (where == RIGHT) {
-        item->setPos(item->pos().x() + translate_speed * sf, item->pos().y());
+        qreal dx = translate_speed * sf;
+        qreal dy = 0;
+        if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
+        item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == LEFT) {
-        item->setPos(item->pos().x() - translate_speed * sf, item->pos().y());
+        qreal dx = -translate_speed * sf;
+        qreal dy = 0;
+        if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
+        item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == UP) {
-        item->setPos(item->pos().x(), item->pos().y() - translate_speed * sf);
+        qreal dx = 0;
+        qreal dy = -translate_speed * sf;
+        if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
+        item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == DOWN) {
-        item->setPos(item->pos().x(), item->pos().y() + translate_speed * sf);
+        qreal dx = 0;
+        qreal dy = translate_speed * sf;
+        if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
+        item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
 }
 
