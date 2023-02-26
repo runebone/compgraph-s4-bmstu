@@ -14,22 +14,21 @@ enum Side { LEFT, RIGHT, UP, DOWN };
 #define SECOND_SET_COLOR QColor("#2c78bf")
 #define SELECT_COLOR QColor("#fbb829")
 #define POINT_SIZE 5.0
+#define LINES_WIDTH 3.0
 #define MAX_PEN_WIDTH 100.0
 #define MIN_ZOOM 1e-07
 #define MAX_ZOOM 200.0
 
-// View::View(QGraphicsView *graphics_view, QObject *parent) : QObject(parent)
-View::View(QGraphicsView *graphics_view, QLabel *info_label, QObject *parent) : QObject(parent)
-// View::View(QObject *parent) : QObject(parent)
+View::View(QGraphicsView *graphics_view, QScrollArea *scroll_area, QLabel *info_label, QObject *parent) : QObject(parent)
 {
     this->view = graphics_view;
-    // this->view = new MyGraphicsView;
 
     CustomScene *scene = new CustomScene;
     this->scene = scene;
     this->view->setScene(scene);
 
     this->info_label = info_label;
+    this->scroll_area = scroll_area;
 }
 
 View::~View()
@@ -43,11 +42,6 @@ void View::set_model(Model *model)
 
     connect(model, SIGNAL(updated()), this, SLOT(model_updated()));
 }
-
-// MyGraphicsView *View::get_graphics_view()
-// {
-    // return this->view;
-// }
 
 class PointItem : public QGraphicsEllipseItem
 {
@@ -100,39 +94,55 @@ private:
     bool is_selected = 0;
 };
 
-void View::draw_point(const Point &point, const QColor &color) {
+PointItem *get_point_item(const Point &point, const QColor &color) {
     qreal w = POINT_SIZE;
     qreal h = POINT_SIZE;
 
-    PointItem *point_figure = new PointItem(point.x, point.y, w, h, color);
+    return new PointItem(point.x, point.y, w, h, color);
+}
 
+void View::draw_point(const Point &point, const QColor &color) {
+    PointItem *point_figure = get_point_item(point, color);
     this->scene->addItem(point_figure);
 }
 
-void View::draw_polygon(const std::vector<Point> &polygon, const QColor &color)
-{
+QGraphicsPolygonItem *get_polygon_item(const std::vector<Point> &polygon, const QColor &color, bool fill = false) {
     QPolygonF polygon_;
     for (Point p: polygon) {
         polygon_ << QPointF(p.x, -p.y); // AOAOA
     }
 
-    QGraphicsPolygonItem *polygon_figure = new QGraphicsPolygonItem(polygon_);
-    polygon_figure->setPen(QPen(color));
+    QGraphicsPolygonItem *polygon_item = new QGraphicsPolygonItem(polygon_);
+    polygon_item->setPen(QPen(color, LINES_WIDTH));
 
+    if (fill) {
+        polygon_item->setBrush(SELECT_COLOR);
+    }
+
+    return polygon_item;
+}
+
+void View::draw_polygon(const std::vector<Point> &polygon, const QColor &color, bool fill) {
+    QGraphicsPolygonItem *polygon_figure = get_polygon_item(polygon, color, fill);
     this->scene->addItem(polygon_figure);
 }
 
-void View::draw_circle(const Point &center, double radius, const QColor &color)
-{
+QGraphicsEllipseItem *get_circle_item(const Point &center, double radius, const QColor &color) {
     qreal x = 0;
     qreal y = 0;
     qreal w = 2 * radius;
     qreal h = 2 * radius;
-    QGraphicsEllipseItem *circle_figure = new QGraphicsEllipseItem(x, y, w, h);
+    QGraphicsEllipseItem *circle_item = new QGraphicsEllipseItem(x, y, w, h);
 
-    circle_figure->setPos(center.x - w/2, -center.y - h/2); // AOAOA
-    circle_figure->setPen(QPen(color, 1));
+    circle_item->setPos(center.x - w/2, -center.y - h/2); // AOAOA
+    circle_item->setPen(QPen(color, LINES_WIDTH));
 
+    return circle_item;
+}
+
+void View::draw_circle(const Point &center, double radius, const QColor &color)
+{
+    QGraphicsEllipseItem *circle_figure = get_circle_item(center, radius, color);
     this->scene->addItem(circle_figure);
 }
 
@@ -157,8 +167,6 @@ void View::draw_points()
     for (Point p: ssp) {
         this->draw_point(p, SECOND_SET_COLOR);
     }
-
-    this->view->show();
 }
 
 void View::draw_solution()
@@ -185,8 +193,8 @@ void View::draw_solution()
             sd.get_second_circle_radius(circle_radius2);
 
             this->draw_points();
-            this->draw_point(circle_center1, Qt::black);
-            this->draw_point(circle_center2, Qt::black);
+            // this->draw_point(circle_center1, Qt::black);
+            // this->draw_point(circle_center2, Qt::black);
 
             sd.get_first_hexagon(hexagon1);
             sd.get_second_hexagon(hexagon2);
@@ -197,16 +205,32 @@ void View::draw_solution()
             this->draw_circle(circle_center1, circle_radius1, FIRST_SET_COLOR);
             this->draw_circle(circle_center2, circle_radius2, SECOND_SET_COLOR);
 
+            // ===
+            // QGraphicsItemGroup *solution_group = new QGraphicsItemGroup;
+            //
+            // QGraphicsItem *circle1 = get_circle_item(circle_center1, circle_radius1, FIRST_SET_COLOR);
+            // QGraphicsItem *circle2 = get_circle_item(circle_center2, circle_radius2, SECOND_SET_COLOR);
+            // solution_group->addToGroup(circle1);
+            // solution_group->addToGroup(circle2);
+
+            // QGraphicsRectItem *rect = new QGraphicsRectItem(solution_group->boundingRect());
+            // rect->setPen(Qt::NoPen);
+
+            // this->solution_rect = rect;
+
+            // delete circle1;
+            // delete circle2;
+            // delete solution_group;
+            // ===
+
             if (status == OK) {
                 sd.get_polygon(polygon);
                 sd.get_polygon_mass_center(polygon_mass_center);
                 sd.get_area(area);
 
-                this->draw_point(polygon_mass_center, Qt::black);
-                this->draw_polygon(polygon, Qt::black);
+                // this->draw_point(polygon_mass_center, Qt::black);
+                this->draw_polygon(polygon, Qt::black, true);
 
-
-                // this->draw_text(string, polygon_mass_center, Qt::black);
                 QString info = QString("Площадь пересечения: %1").arg(area);
                 this->info_label->setText(info);
                 qDebug() << info;
@@ -228,14 +252,27 @@ void View::clear()
     this->scene->clear();
 }
 
-void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
+void View::resize_fit_all()
+{
+    QRectF boundingRect = this->scene->itemsBoundingRect();
+    this->scene->setSceneRect(boundingRect);
+    this->view->fitInView(boundingRect, Qt::KeepAspectRatio);
+}
+
+void View::resize_fit_solution()
+{
+    // QRectF boundingRect = this->solution_rect->boundingRect();
+    // this->scene->setSceneRect(boundingRect);
+    // this->view->fitInView(boundingRect, Qt::KeepAspectRatio);
+}
+
+void handle_zoom(QGraphicsItem* item, qreal scale_factor) {
     // Make points constant size independently of zoom
     if (item->type() == PointItem::Type) {
         PointItem* pointItem = qgraphicsitem_cast<PointItem*>(item);
 
-        QRectF rect = pointItem->rect();
-        qreal new_width = rect.width() * scale_factor;
-        qreal new_height = rect.height() * scale_factor;
+        qreal new_width = POINT_SIZE * scale_factor;
+        qreal new_height = POINT_SIZE * scale_factor;
 
         QPointF pos = pointItem->get_pos();
 
@@ -246,8 +283,8 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
         QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
 
         QPen pen = polygonItem->pen();
-        if (sf < MAX_PEN_WIDTH) {
-            pen.setWidthF(sf);
+        if (scale_factor < MAX_PEN_WIDTH) {
+            pen.setWidthF(scale_factor);
         }
         polygonItem->setPen(pen);
 
@@ -255,8 +292,8 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor, qreal sf) {
         QGraphicsEllipseItem* ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem*>(item);
 
         QPen pen = ellipseItem->pen();
-        if (sf < MAX_PEN_WIDTH) {
-            pen.setWidthF(sf);
+        if (scale_factor < MAX_PEN_WIDTH) {
+            pen.setWidthF(scale_factor);
         }
         ellipseItem->setPen(pen);
     }
@@ -314,13 +351,17 @@ void View::key_press_event(QKeyEvent *event)
     if (event->key() == Qt::Key_I && sf > MIN_ZOOM) {
         this->view->setTransform(in_scale, true);
         foreach(QGraphicsItem* item, this->scene->items()) {
-            handle_zoom(item, out_scale_factor, sf);
+            handle_zoom(item, sf * LINES_WIDTH);
+            // Crutch for lines to have constant width when zooming in
+            sf = 1.0 / this->view->transform().m11();
+            handle_zoom(item, sf * LINES_WIDTH);
         }
     }
     else if (event->key() == Qt::Key_O && sf < MAX_ZOOM) {
         this->view->setTransform(out_scale, true);
+        sf = 1.0 / this->view->transform().m11();
         foreach(QGraphicsItem* item, this->scene->items()) {
-            handle_zoom(item, in_scale_factor, sf);
+            handle_zoom(item, sf * LINES_WIDTH);
         }
     }
     else if (event->key() == Qt::Key_H) {
@@ -342,6 +383,20 @@ void View::key_press_event(QKeyEvent *event)
     else if (event->key() == Qt::Key_L) {
         foreach(QGraphicsItem* item, this->scene->items()) {
             move_item(item, translate_speed, sf, Side::LEFT);
+        }
+    }
+    else if (event->key() == Qt::Key_Equal) {
+        this->resize_fit_all();
+        sf = 1.0 / this->view->transform().m11();
+        foreach(QGraphicsItem* item, this->scene->items()) {
+            handle_zoom(item, sf * LINES_WIDTH);
+        }
+    }
+    else if (event->key() == Qt::Key_R) {
+        this->resize_fit_solution();
+        sf = 1.0 / this->view->transform().m11();
+        foreach(QGraphicsItem* item, this->scene->items()) {
+            handle_zoom(item, sf * LINES_WIDTH);
         }
     }
     else {
