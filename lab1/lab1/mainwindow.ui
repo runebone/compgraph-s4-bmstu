@@ -80,9 +80,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="clearScreenButton">
+           <widget class="QPushButton" name="deleteAllButton">
             <property name="text">
-             <string>Clear Screen</string>
+             <string>Delete All</string>
             </property>
            </widget>
           </item>
@@ -96,34 +96,83 @@
          </layout>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <layout class="QHBoxLayout" name="scrollAreaLayout">
+          <property name="rightMargin">
+           <number>0</number>
           </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>592</width>
-             <height>81</height>
-            </rect>
-           </property>
-          </widget>
-         </widget>
+          <item>
+           <widget class="QScrollArea" name="scrollAreaLeft">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaLeftWidgetContents">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>291</width>
+               <height>78</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QScrollArea" name="scrollAreaRight">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaRightWidgetContents">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>291</width>
+               <height>78</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QVBoxLayout" name="rightButtonsLayout">
           <item>
-           <widget class="QPushButton" name="addPointButton">
+           <widget class="QPushButton" name="addPoint1Button">
             <property name="text">
-             <string>Add Point</string>
+             <string>Add Point 1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addPoint2Button">
+            <property name="text">
+             <string>Add Point 2</string>
             </property>
            </widget>
           </item>
@@ -131,13 +180,6 @@
            <widget class="QPushButton" name="loadFromFileButton">
             <property name="text">
              <string>Load From File</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="deleteAllButton">
-            <property name="text">
-             <string>Delete All</string>
             </property>
            </widget>
           </item>

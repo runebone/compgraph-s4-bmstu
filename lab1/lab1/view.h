@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QLabel>
+#include <QVBoxLayout>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -20,7 +21,7 @@ class View : public QObject
 {
     Q_OBJECT
 public:
-    explicit View(QGraphicsView *graphics_view, QScrollArea *scroll_area, QLabel *info_label, QObject *parent = nullptr);
+    explicit View(QGraphicsView *graphics_view, QScrollArea *scroll_area1, QScrollArea *scroll_area2, QLabel *info_label, QObject *parent = nullptr);
     ~View();
 
     void set_model(Model *model);
@@ -42,7 +43,9 @@ private:
     QGraphicsView *view;
     CustomScene *scene;
 
-    QScrollArea *scroll_area;
+    // Scroll Areas
+    QVBoxLayout *layout1;
+    QVBoxLayout *layout2;
 
     // QGraphicsRectItem *solution_rect;
 
@@ -52,7 +55,8 @@ public slots:
     void key_press_event(QKeyEvent *event);
 
 private slots:
-    void model_updated();
+    void model_edited_point(int point_index);
+    void model_updated_points();
 
 signals:
 

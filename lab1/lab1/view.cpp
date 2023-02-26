@@ -3,6 +3,7 @@
 #include <QGraphicsPolygonItem>
 #include <QGraphicsTextItem>
 #include <QPolygonF>
+#include "mypointwidget.h"
 
 #include <vector>
 #include <cstdio>
@@ -19,16 +20,33 @@ enum Side { LEFT, RIGHT, UP, DOWN };
 #define MIN_ZOOM 1e-07
 #define MAX_ZOOM 200.0
 
-View::View(QGraphicsView *graphics_view, QScrollArea *scroll_area, QLabel *info_label, QObject *parent) : QObject(parent)
+View::View(QGraphicsView *graphics_view, QScrollArea *scroll_area1, QScrollArea *scroll_area2, QLabel *info_label, QObject *parent) : QObject(parent)
 {
     this->view = graphics_view;
 
-    CustomScene *scene = new CustomScene;
+    CustomScene *scene = new CustomScene(this);
     this->scene = scene;
     this->view->setScene(scene);
 
     this->info_label = info_label;
-    this->scroll_area = scroll_area;
+
+    // Setup scroll area
+    QVBoxLayout* layout1 = new QVBoxLayout(scroll_area1);
+    QVBoxLayout* layout2 = new QVBoxLayout(scroll_area2);
+    this->layout1 = layout1;
+    this->layout2 = layout2;
+
+    QWidget* widget1 = new QWidget(scroll_area1);
+    QWidget* widget2 = new QWidget(scroll_area2);
+    widget1->setLayout(layout1);
+    widget2->setLayout(layout2);
+
+    // Point p = { .x = 1, .y = 2 };
+    // MyPointWidget* mpw = new MyPointWidget(0, p);
+    // layout1->addWidget(mpw);
+
+    scroll_area1->setWidget(widget1);
+    scroll_area2->setWidget(widget2);
 }
 
 View::~View()
@@ -40,7 +58,7 @@ void View::set_model(Model *model)
 {
     this->model = model;
 
-    connect(model, SIGNAL(updated()), this, SLOT(model_updated()));
+    connect(model, SIGNAL(updated()), this, SLOT(model_updated_points()));
 }
 
 class PointItem : public QGraphicsEllipseItem
@@ -404,7 +422,12 @@ void View::key_press_event(QKeyEvent *event)
     }
 }
 
-void View::model_updated()
+void View::model_edited_point(int point_index)
+{
+
+}
+
+void View::model_updated_points()
 {
 
 }

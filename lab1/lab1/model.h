@@ -8,6 +8,8 @@
 #include "error.h"
 #include "solution_data.h"
 
+enum Set { FIRST, SECOND };
+
 class Model : public QObject
 {
     Q_OBJECT
@@ -30,9 +32,16 @@ private:
     err_t generate_solution_data();
 
 public slots:
-    void solve_model();
+    void solve();
+    void add_point1();
+    void add_point2();
+    // TODO: add_point(x, y)
+    void load_from_file();
+    void delete_all_points();
+    void point_edited(int point_index, Set set, double x, double y);
 
 signals:
+    void point_edited_signal(int point_index, Set set, double x, double y);
     void updated();
 
 };

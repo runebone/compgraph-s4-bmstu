@@ -19,6 +19,11 @@ public:
 
 signals:
     void solve_button_clicked();
+    void add1_button_clicked();
+    void add2_button_clicked();
+    void load_from_file_button_clicked();
+    void delete_all_button_clicked();
+
     void key_pressed(QKeyEvent *event);
 
 private slots:
@@ -28,6 +33,14 @@ private slots:
     void on_solveButton_clicked();
 
     void on_exitButton_clicked();
+
+    void on_addPoint1Button_clicked();
+
+    void on_addPoint2Button_clicked();
+
+    void on_loadFromFileButton_clicked();
+
+    void on_deleteAllButton_clicked();
 
 private:
     Ui::MainWindow *ui;

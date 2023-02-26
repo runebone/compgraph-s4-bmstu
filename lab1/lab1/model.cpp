@@ -34,12 +34,40 @@ void Model::set_second_set_points(std::vector<Point> &second_set)
 
 err_t Model::generate_solution_data()
 {
-    return solve(this->first_set, this->second_set, this->solution_data);
+    return Algorithm::solve(this->first_set, this->second_set, this->solution_data);
 }
 
 #include <cstdio>
-void Model::solve_model()
+void Model::solve()
 {
     this->generate_solution_data();
     std::printf("Solution status: %d\n", this->solution_data.get_status());
+}
+
+void Model::add_point1()
+{
+    // ...
+    emit this->updated();
+}
+
+void Model::add_point2()
+{
+    // ...
+    emit this->updated();
+}
+
+void Model::load_from_file()
+{
+    // ...
+    emit this->updated();
+}
+
+void Model::delete_all_points()
+{
+    // ...
+    emit this->updated();
+}
+
+void Model::point_edited(int point_index, Set set, double x, double y)
+{
 }
