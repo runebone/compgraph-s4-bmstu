@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         view.h view.cpp
         controller.h controller.cpp
         mypointwidget.h mypointwidget.cpp
+        set.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

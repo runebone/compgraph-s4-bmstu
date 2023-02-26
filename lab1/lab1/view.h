@@ -9,7 +9,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QKeyEvent>
+
+#define ENABLE_ERROR_FUNCS
 #include "model.h"
+#include <string>
 
 class CustomScene : public QGraphicsScene
 {
@@ -55,6 +58,12 @@ public slots:
     void key_press_event(QKeyEvent *event);
 
 private slots:
+    // meh
+    void on_invalid_input1(int point_index);
+    void on_invalid_input2(int point_index);
+
+    void on_remove_point_clicked(int point_index, Set set);
+
     void model_edited_point(int point_index);
     void model_updated_points();
 

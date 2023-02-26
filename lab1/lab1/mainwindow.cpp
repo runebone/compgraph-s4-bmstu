@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <QFileDialog>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -13,14 +15,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     view->set_model(model);
 
-    Controller *controller = new Controller(model, view);
+    Controller *controller = new Controller(model, view, this);
     this->controller = controller;
 
     // Connect UI signals to Controller
     connect(this, SIGNAL(solve_button_clicked()), controller, SLOT(on_solve_button_clicked()));
     connect(this, SIGNAL(add1_button_clicked()), controller, SLOT(on_add1_button_clicked()));
     connect(this, SIGNAL(add2_button_clicked()), controller, SLOT(on_add2_button_clicked()));
-    connect(this, SIGNAL(load_from_file_button_clicked()), controller, SLOT(on_load_from_file_button_clicked()));
+    connect(this, SIGNAL(load_from_file_button_clicked(QString)), controller, SLOT(on_load_from_file_button_clicked(QString)));
     connect(this, SIGNAL(delete_all_button_clicked()), controller, SLOT(on_delete_all_button_clicked()));
 
     // Let the View know if user presses any keys
@@ -34,9 +36,9 @@ MainWindow::MainWindow(QWidget *parent)
         // { .x = 0.0, .y = 1.0 }, // default
         // { .x = -sqrt3/2, .y = -1.0/2 },
         // { .x = sqrt3/2, .y = -1.0/2 },
-        { .x = 0.0, .y = 1.0 * 10 }, // big
-        { .x = -sqrt3/2 * 10, .y = -1.0/2 * 10 },
-        { .x = sqrt3/2 * 10, .y = -1.0/2 * 10 },
+        // { .x = 0.0, .y = 1.0 * 10 }, // big
+        // { .x = -sqrt3/2 * 10, .y = -1.0/2 * 10 },
+        // { .x = sqrt3/2 * 10, .y = -1.0/2 * 10 },
     };
 
     std::vector<Point> pb{
@@ -49,9 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
         // { .x = sqrt3/2 + 0.0, .y = 1.5 + 1.0}, // share common side, no intersection area
         // { .x = 0.0 + 0.0, .y = 0.0 + 1.0},
         // { .x = 2*sqrt3/2 + 0.0, .y = 0.0 + 1.0},
-        { .x = 0.0, .y = 1.0 + 1.999 }, // very small intersection area; ok
-        { .x = -sqrt3/2, .y = -1.0/2 + 1.999 },
-        { .x = sqrt3/2, .y = -1.0/2 + 1.999 },
+        // { .x = 0.0, .y = 1.0 + 1.999 }, // very small intersection area; ok
+        // { .x = -sqrt3/2, .y = -1.0/2 + 1.999 },
+        // { .x = sqrt3/2, .y = -1.0/2 + 1.999 },
         // { .x = 0.0 + 0.2, .y = 1.0 + 1.000 }, // FIXED: error: raycast horizontal ray goes right through the vertex -> counts twice
         // { .x = -sqrt3/2 + 0.2, .y = -1.0/2 + 1.000 },
         // { .x = sqrt3/2 + 0.2, .y = -1.0/2 + 1.000 },
@@ -63,8 +65,16 @@ MainWindow::MainWindow(QWidget *parent)
         // { .x = sqrt3/2 + 0.2, .y = -1.0/2 + 2.800 },
     };
 
-    model->set_first_set_points(pa);
-    model->set_second_set_points(pb);
+    // for (Point p: pa) {
+        // std::printf("1 %lf %lf\n", p.x, p.y);
+    // }
+
+    // for (Point p: pb) {
+        // std::printf("2 %lf %lf\n", p.x, p.y);
+    // }
+
+    // model->set_first_set_points(pa);
+    // model->set_second_set_points(pb);
 }
 
 MainWindow::~MainWindow()
@@ -109,7 +119,10 @@ void MainWindow::on_addPoint2Button_clicked()
 
 void MainWindow::on_loadFromFileButton_clicked()
 {
-    emit this->load_from_file_button_clicked();
+    // Should have been entirely in Controller
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/human/University/cg/lab1", "Text File (*.txt)");
+
+    emit this->load_from_file_button_clicked(filename);
 }
 
 

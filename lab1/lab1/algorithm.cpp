@@ -585,7 +585,7 @@ double get_angle(Point &point1, Point &point2) {
     return atan2(point2.y - point1.y, point2.x - point1.x);
 }
 
-#define EPSILON 1e-09
+#define EPSILON 1e-06
 bool is_equal(double x, double y) {
     return std::fabs(x - y) <= EPSILON;
 }

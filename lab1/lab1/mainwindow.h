@@ -21,7 +21,7 @@ signals:
     void solve_button_clicked();
     void add1_button_clicked();
     void add2_button_clicked();
-    void load_from_file_button_clicked();
+    void load_from_file_button_clicked(QString filename);
     void delete_all_button_clicked();
 
     void key_pressed(QKeyEvent *event);

@@ -1,5 +1,8 @@
 #include "model.h"
 
+#include <fstream>
+#include <sstream>
+
 #include "algorithm.h"
 
 Model::Model(QObject *parent) : QObject(parent)
@@ -40,8 +43,11 @@ err_t Model::generate_solution_data()
 #include <cstdio>
 void Model::solve()
 {
-    this->generate_solution_data();
-    std::printf("Solution status: %d\n", this->solution_data.get_status());
+    err_t rc = this->generate_solution_data();
+    std::printf("Solution status: %d | %d\n", this->solution_data.get_status(), rc);
+
+    // FIXME meeeeh
+    this->solution_data.set_status(rc);
 }
 
 void Model::add_point1()
@@ -56,9 +62,31 @@ void Model::add_point2()
     emit this->updated();
 }
 
-void Model::load_from_file()
+void Model::load_from_file(QString filename)
 {
-    // ...
+    std::ifstream file(filename.toStdString());
+    std::string line;
+
+    if (file.is_open())
+    {
+        Point p;
+        int set;
+
+        // Consider file has valid structure
+        while (std::getline(file, line))
+        {
+            std::stringstream ss(line);
+            ss >> set >> p.x >> p.y;
+
+            if (set == 1) {
+                this->first_set.push_back(p);
+            } else if (set == 2) {
+                this->second_set.push_back(p);
+            }
+        }
+        file.close();
+    }
+
     emit this->updated();
 }
 
@@ -70,4 +98,23 @@ void Model::delete_all_points()
 
 void Model::point_edited(int point_index, Set set, double x, double y)
 {
+}
+
+void Model::x_edited(int point_index, Set set, double x)
+{
+
+}
+
+void Model::y_edited(int point_index, Set set, double y)
+{
+
+}
+
+void Model::remove_point(int point_index, Set set)
+{
+    if (set == FIRST) {
+        this->first_set.erase(first_set.begin() + point_index);
+    } else if (set == SECOND) {
+        this->second_set.erase(second_set.begin() + point_index);
+    }
 }

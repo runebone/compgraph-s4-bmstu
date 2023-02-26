@@ -8,7 +8,7 @@
 #include "error.h"
 #include "solution_data.h"
 
-enum Set { FIRST, SECOND };
+#include "set.h"
 
 class Model : public QObject
 {
@@ -36,9 +36,15 @@ public slots:
     void add_point1();
     void add_point2();
     // TODO: add_point(x, y)
-    void load_from_file();
+    void load_from_file(QString filename);
     void delete_all_points();
+
+    // meh
     void point_edited(int point_index, Set set, double x, double y);
+    void x_edited(int point_index, Set set, double x);
+    void y_edited(int point_index, Set set, double y);
+
+    void remove_point(int point_index, Set set);
 
 signals:
     void point_edited_signal(int point_index, Set set, double x, double y);

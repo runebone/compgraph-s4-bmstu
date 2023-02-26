@@ -9,6 +9,8 @@
 #include <cstdio>
 #include "point.h"
 
+void handle_zoom(QGraphicsItem* item, qreal scale_factor);
+
 enum Side { LEFT, RIGHT, UP, DOWN };
 
 #define FIRST_SET_COLOR QColor("#ef2f27")
@@ -56,6 +58,7 @@ View::~View()
 
 void View::set_model(Model *model)
 {
+    // Probably has to be done in Controller
     this->model = model;
 
     connect(model, SIGNAL(updated()), this, SLOT(model_updated_points()));
@@ -190,6 +193,8 @@ void View::draw_points()
 void View::draw_solution()
 {
     if (this->model) {
+        this->clear();
+
         SolutionData sd = model->get_solution_data();
 
         err_t status = sd.get_status();
@@ -261,6 +266,19 @@ void View::draw_solution()
                 this->info_label->setText(info);
                 qDebug() << info;
             }
+
+            // Resize fit right after solution
+            this->resize_fit_all();
+            // Fit the sizes of objects as well
+            qreal sf = 1.0 / this->view->transform().m11();
+            foreach(QGraphicsItem* item, this->scene->items()) {
+                handle_zoom(item, sf * LINES_WIDTH);
+            }
+        } else {
+            std::string error_description = get_error_description(status);
+            QString str = QString::fromStdString(error_description);
+
+            this->info_label->setText(str);
         }
     }
 }
@@ -422,6 +440,37 @@ void View::key_press_event(QKeyEvent *event)
     }
 }
 
+void View::on_invalid_input1(int point_index)
+{
+    QString str = QString("Защита от обезьяны: Исправьте координаты точки %1 из первого множества.").arg(point_index);
+    this->info_label->setText(str);
+}
+
+void View::on_invalid_input2(int point_index)
+{
+    QString str = QString("Защита от обезьяны: Исправьте координаты точки %1 из второго множества.").arg(point_index);
+    this->info_label->setText(str);
+}
+
+void View::on_remove_point_clicked(int point_index, Set set)
+{
+    QLayout *layout;
+
+    if (set == FIRST) {
+        layout = this->layout1;
+    } else if (set == SECOND) {
+        layout = this->layout2;
+    }
+
+    for (int i = point_index; i < layout->count(); i++) {
+        MyPointWidget *widget = qobject_cast<MyPointWidget*>(layout->itemAt(i)->widget());
+        if (widget) {
+            widget->index -= 1;
+            widget->update_index();
+        }
+    }
+}
+
 void View::model_edited_point(int point_index)
 {
 
@@ -429,5 +478,52 @@ void View::model_edited_point(int point_index)
 
 void View::model_updated_points()
 {
+    QLayoutItem* item;
+    QWidget* widget;
 
+    while ((item = this->layout1->takeAt(0)) != nullptr) {
+        widget = item->widget();
+        if (widget != nullptr) {
+            delete widget;
+        }
+        delete item;
+    }
+
+    while ((item = this->layout2->takeAt(0)) != nullptr) {
+        widget = item->widget();
+        if (widget != nullptr) {
+            delete widget;
+        }
+        delete item;
+    }
+
+    int i = 0;
+    for (Point p: this->model->get_first_set_points()) {
+        MyPointWidget *mpw = new MyPointWidget(i, p);
+        mpw->set = FIRST;
+        this->layout1->addWidget(mpw);
+
+        connect(mpw, SIGNAL(x_input_changed(int,Set,double)), this->model, SLOT(x_edited(int,Set,double)));
+        connect(mpw, SIGNAL(y_input_changed(int,Set,double)), this->model, SLOT(y_edited(int,Set,double)));
+        connect(mpw, SIGNAL(remove_button_clicked(int,Set)), this->model, SLOT(remove_point(int,Set)));
+        connect(mpw, SIGNAL(remove_button_clicked(int,Set)), this, SLOT(on_remove_point_clicked(int,Set)));
+        connect(mpw, SIGNAL(invalid_input(int)), this, SLOT(on_invalid_input1(int)));
+
+        i++;
+    }
+
+    i = 0;
+    for (Point p: this->model->get_second_set_points()) {
+        MyPointWidget *mpw = new MyPointWidget(i, p);
+        mpw->set = SECOND;
+        this->layout2->addWidget(mpw);
+
+        connect(mpw, SIGNAL(x_input_changed(int,Set,double)), this->model, SLOT(x_edited(int,Set,double)));
+        connect(mpw, SIGNAL(y_input_changed(int,Set,double)), this->model, SLOT(y_edited(int,Set,double)));
+        connect(mpw, SIGNAL(remove_button_clicked(int,Set)), this->model, SLOT(remove_point(int,Set)));
+        connect(mpw, SIGNAL(remove_button_clicked(int,Set)), this, SLOT(on_remove_point_clicked(int,Set)));
+        connect(mpw, SIGNAL(invalid_input(int)), this, SLOT(on_invalid_input2(int)));
+
+        i++;
+    }
 }

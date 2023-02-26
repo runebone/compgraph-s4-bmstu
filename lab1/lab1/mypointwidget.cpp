@@ -32,17 +32,42 @@ MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : Q
     connect(this->remove_btn, SIGNAL(clicked()), this, SLOT(on_remove_button_clicked()));
 }
 
+void MyPointWidget::update_index()
+{
+    // XXX: AOAOA consider index will always be at pos 0
+    QLabel *label = qobject_cast<QLabel*>(this->layout->itemAt(0)->widget());
+    QString str = QString("%1.").arg(this->index + 1);
+    label->setText(str);
+}
+
 void MyPointWidget::on_x_input_changed()
 {
-    // emit this->x_input_changed(this->index, str);
+    QString str = this->x_input->text();
+    bool is_double = false;
+    double value = str.toDouble(&is_double);
+
+    if (is_double) {
+        emit this->x_input_changed(this->index, this->set, value);
+    } else {
+        emit this->invalid_input(this->index);
+    }
 }
 
 void MyPointWidget::on_y_input_changed()
 {
-    // emit this->y_input_changed(this->index, str);
+    QString str = this->y_input->text();
+    bool is_double = false;
+    double value = str.toDouble(&is_double);
+
+    if (is_double) {
+        emit this->y_input_changed(this->index, this->set, value);
+    } else {
+        emit this->invalid_input(this->index);
+    }
 }
 
 void MyPointWidget::on_remove_button_clicked()
 {
-    emit this->remove_button_clicked(this->index);
+    emit this->remove_button_clicked(this->index, this->set);
+    delete this;
 }
