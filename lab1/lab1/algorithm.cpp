@@ -245,7 +245,7 @@ err_t find_three_equidistant_points(std::vector<Point> &points, Point &out_point
 
                 bool three_points_are_equidistant = condition1 && condition2 && condition3;
 
-                if (three_points_are_equidistant) {
+                if (three_points_are_equidistant && !are_points_on_the_same_line(points[i], points[j], points[k])) {
                     equidistant_points_found = true;
 
                     point1_index = i;
@@ -365,6 +365,15 @@ Point get_circle_center(Point &point1, Point &point2, Point &point3) {
     double y2 = point2.y;
     double x3 = point3.x;
     double y3 = point3.y;
+
+    // FIXED: zero division if y1 == y2 or y1 == y3
+    if (y1 == y2) {
+        std::swap(x1, x3);
+        std::swap(y1, y3);
+    } else if (y1 == y3) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
 
     double A = (x1 * x1 - x3 * x3 + y1 * y1 - y3 * y3) / (2 * (y1 - y3));
     double B = (x1 * x1 - x2 * x2 + y1 * y1 - y2 * y2) / (2 * (y1 - y2));
