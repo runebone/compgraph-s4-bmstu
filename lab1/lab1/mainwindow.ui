@@ -205,6 +205,7 @@
     <property name="title">
      <string>Runov Konstantin IU7-44B</string>
     </property>
+    <addaction name="actionClear_Screen"/>
     <addaction name="actionTask"/>
    </widget>
    <addaction name="menuRunov_Konstantin_IU7_44B"/>
@@ -212,6 +213,11 @@
   <action name="actionTask">
    <property name="text">
     <string>Task</string>
+   </property>
+  </action>
+  <action name="actionClear_Screen">
+   <property name="text">
+    <string>Clear Screen</string>
    </property>
   </action>
  </widget>

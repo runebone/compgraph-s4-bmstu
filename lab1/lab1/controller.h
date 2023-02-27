@@ -31,6 +31,7 @@ public slots:
     void on_add2_button_clicked();
     void on_load_from_file_button_clicked(QString filename);
     void on_back_button_clicked();
+    void on_clear_screen_clicked();
 
     void on_model_updated();
 

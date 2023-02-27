@@ -64,6 +64,11 @@ void Controller::on_back_button_clicked()
     }
 }
 
+void Controller::on_clear_screen_clicked()
+{
+    this->view->clear();
+}
+
 void Controller::on_model_updated()
 {
     this->model_caretaker->push(this->model->createMemento());

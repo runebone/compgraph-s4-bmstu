@@ -23,6 +23,7 @@ signals:
     void add2_button_clicked();
     void load_from_file_button_clicked(QString filename);
     void back_button_clicked();
+    void clear_screen();
 
     void key_pressed(QKeyEvent *event);
 
@@ -41,6 +42,8 @@ private slots:
     void on_loadFromFileButton_clicked();
 
     void on_backButton_clicked();
+
+    void on_actionClear_Screen_triggered();
 
 private:
     Ui::MainWindow *ui;

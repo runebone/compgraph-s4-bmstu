@@ -272,20 +272,20 @@ void View::draw_solution()
                 this->info_label->setText(info);
                 qDebug() << info;
             }
-
-            // Resize fit right after solution
-            this->resize_fit_all();
-            // Fit the sizes of objects as well
-            qreal sf = 1.0 / this->view->transform().m11();
-            foreach(QGraphicsItem* item, this->scene->items()) {
-                handle_zoom(item, sf * LINES_WIDTH);
-            }
         } else {
             std::string error_description = get_error_description(status);
             QString str = QString::fromStdString(error_description);
 
             this->info_label->setText(str);
         }
+        // Resize fit right after solution
+        // this->resize_fit_all();
+        // Fit the sizes of objects as well
+        // qreal sf = 1.0 / this->view->transform().m11();
+        // foreach(QGraphicsItem* item, this->scene->items()) {
+            // handle_zoom(item, sf * LINES_WIDTH);
+        // }
+        this->redraw_points();
     }
 }
 
