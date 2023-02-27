@@ -52,13 +52,15 @@ void Model::solve()
 
 void Model::add_point1()
 {
-    // ...
+    Point p = { .x = 0.0, .y = 0.0 };
+    this->first_set.push_back(p);
     emit this->updated();
 }
 
 void Model::add_point2()
 {
-    // ...
+    Point p = { .x = 0.0, .y = 0.0 };
+    this->second_set.push_back(p);
     emit this->updated();
 }
 
