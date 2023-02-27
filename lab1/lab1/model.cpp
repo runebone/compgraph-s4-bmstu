@@ -46,7 +46,7 @@ void Model::solve()
     err_t rc = this->generate_solution_data();
     std::printf("Solution status: %d | %d\n", this->solution_data.get_status(), rc);
 
-    // FIXME meeeeh
+    // FIXME meh
     this->solution_data.set_status(rc);
 }
 
@@ -75,6 +75,10 @@ void Model::load_from_file(QString filename)
         // Consider file has valid structure
         while (std::getline(file, line))
         {
+            if (line[0] == '#') {
+                continue;
+            }
+
             std::stringstream ss(line);
             ss >> set >> p.x >> p.y;
 
@@ -90,24 +94,46 @@ void Model::load_from_file(QString filename)
     emit this->updated();
 }
 
-void Model::delete_all_points()
-{
-    // ...
-    emit this->updated();
-}
-
 void Model::point_edited(int point_index, Set set, double x, double y)
 {
+    // for drag and drop
+    // TODO
 }
 
 void Model::x_edited(int point_index, Set set, double x)
 {
+    Point p_old, p_new;
 
+    if (set == FIRST) {
+        p_old = this->first_set[point_index];
+        this->first_set[point_index].x = x;
+    } else if (set == SECOND) {
+        p_old = this->second_set[point_index];
+        this->second_set[point_index].x = x;
+    }
+
+    p_new = p_old;
+    p_new.x = x;
+
+    emit this->point_edited_signal(point_index, set, p_old, p_new);
 }
 
 void Model::y_edited(int point_index, Set set, double y)
 {
+    Point p_old, p_new;
 
+    if (set == FIRST) {
+        p_old = this->first_set[point_index];
+        this->first_set[point_index].y = y;
+    } else if (set == SECOND) {
+        p_old = this->second_set[point_index];
+        this->second_set[point_index].y = y;
+    }
+
+    p_new = p_old;
+    p_new.y = y;
+
+    emit this->point_edited_signal(point_index, set, p_old, p_new);
 }
 
 void Model::remove_point(int point_index, Set set)
@@ -117,4 +143,6 @@ void Model::remove_point(int point_index, Set set)
     } else if (set == SECOND) {
         this->second_set.erase(second_set.begin() + point_index);
     }
+
+    emit this->removed_point();
 }

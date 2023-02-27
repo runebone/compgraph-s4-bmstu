@@ -40,6 +40,8 @@ public:
     void resize_fit_all();
     void resize_fit_solution();
 
+    void redraw_points();
+
 private:
     Model *model = nullptr;
 
@@ -64,7 +66,7 @@ private slots:
 
     void on_remove_point_clicked(int point_index, Set set);
 
-    void model_edited_point(int point_index);
+    void model_edited_point(int point_index, Set set, Point p_old, Point p_new);
     void model_updated_points();
 
 signals:

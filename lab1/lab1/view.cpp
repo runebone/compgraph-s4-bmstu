@@ -19,7 +19,7 @@ enum Side { LEFT, RIGHT, UP, DOWN };
 #define POINT_SIZE 5.0
 #define LINES_WIDTH 3.0
 #define MAX_PEN_WIDTH 100.0
-#define MIN_ZOOM 1e-07
+#define MIN_ZOOM 1e-08
 #define MAX_ZOOM 200.0
 
 View::View(QGraphicsView *graphics_view, QScrollArea *scroll_area1, QScrollArea *scroll_area2, QLabel *info_label, QObject *parent) : QObject(parent)
@@ -62,6 +62,8 @@ void View::set_model(Model *model)
     this->model = model;
 
     connect(model, SIGNAL(updated()), this, SLOT(model_updated_points()));
+    connect(model, SIGNAL(restored()), this, SLOT(model_updated_points()));
+    connect(model, SIGNAL(point_edited_signal(int,Set,Point,Point)), this, SLOT(model_edited_point(int,Set,Point,Point)));
 }
 
 class PointItem : public QGraphicsEllipseItem
@@ -89,6 +91,10 @@ public:
 
     QPointF get_pos() {
         return QPointF(this->x, this->y);
+    }
+
+    QColor get_color() {
+        return this->color;
     }
 
     void toggle_selected(qreal width) {
@@ -444,12 +450,31 @@ void View::on_invalid_input1(int point_index)
 {
     QString str = QString("Защита от обезьяны: Исправьте координаты точки %1 из первого множества.").arg(point_index);
     this->info_label->setText(str);
+    // TODO
 }
 
 void View::on_invalid_input2(int point_index)
 {
     QString str = QString("Защита от обезьяны: Исправьте координаты точки %1 из второго множества.").arg(point_index);
     this->info_label->setText(str);
+    // TODO
+}
+
+void View::redraw_points() {
+    foreach (QGraphicsItem* item, this->scene->items()) {
+        if (item->type() == PointItem::Type) {
+            delete item;
+        }
+    }
+    this->draw_points();
+    // resize
+    this->resize_fit_all();
+    qreal sf = 1.0 / this->view->transform().m11();
+    foreach(QGraphicsItem* item, this->scene->items()) {
+        // if (item->type() == PointItem::Type) {
+            handle_zoom(item, sf * LINES_WIDTH);
+        // }
+    }
 }
 
 void View::on_remove_point_clicked(int point_index, Set set)
@@ -462,6 +487,7 @@ void View::on_remove_point_clicked(int point_index, Set set)
         layout = this->layout2;
     }
 
+    // Decrease indexes of the following points
     for (int i = point_index; i < layout->count(); i++) {
         MyPointWidget *widget = qobject_cast<MyPointWidget*>(layout->itemAt(i)->widget());
         if (widget) {
@@ -469,11 +495,30 @@ void View::on_remove_point_clicked(int point_index, Set set)
             widget->update_index();
         }
     }
+
+    // TODO: delete single point
+    // Redraw points
+    this->redraw_points();
 }
 
-void View::model_edited_point(int point_index)
+void View::model_edited_point(int point_index, Set set, Point p_old, Point p_new)
 {
+    foreach (QGraphicsItem* item, this->scene->items()) {
+        if (item->type() == PointItem::Type) {
+            PointItem* point = qgraphicsitem_cast<PointItem*>(item);
 
+            // FIXME nest too much
+            if ((set == FIRST && point->get_color() == FIRST_SET_COLOR) || (set == SECOND && point->get_color() == SECOND_SET_COLOR)) {
+                QPointF pos = point->get_pos();
+                if (pos.x() == p_old.x && pos.y() == p_old.y) {
+                    point->set_pos(p_new.x, -p_new.y); // AOAOA
+                }
+            }
+        }
+    }
+
+    // MEOOOOW; TODO: edit single point, not redraw
+    this->redraw_points();
 }
 
 void View::model_updated_points()
@@ -526,4 +571,6 @@ void View::model_updated_points()
 
         i++;
     }
+
+    this->redraw_points();
 }

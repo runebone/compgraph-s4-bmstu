@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(add1_button_clicked()), controller, SLOT(on_add1_button_clicked()));
     connect(this, SIGNAL(add2_button_clicked()), controller, SLOT(on_add2_button_clicked()));
     connect(this, SIGNAL(load_from_file_button_clicked(QString)), controller, SLOT(on_load_from_file_button_clicked(QString)));
-    connect(this, SIGNAL(delete_all_button_clicked()), controller, SLOT(on_delete_all_button_clicked()));
+    connect(this, SIGNAL(back_button_clicked()), controller, SLOT(on_back_button_clicked()));
 
     // Let the View know if user presses any keys
     // (I should've initially created custom QGraphicsView...)
@@ -126,8 +126,8 @@ void MainWindow::on_loadFromFileButton_clicked()
 }
 
 
-void MainWindow::on_deleteAllButton_clicked()
+void MainWindow::on_backButton_clicked()
 {
-    emit this->delete_all_button_clicked();
+    emit this->back_button_clicked();
 }
 
