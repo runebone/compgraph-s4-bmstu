@@ -26,6 +26,11 @@ public:
     QPushButton *remove_button;
 
     void update_index();
+    bool is_input_valid();
+
+private:
+    bool is_valid_x_input = true;
+    bool is_valid_y_input = true;
 
 public slots:
     void on_x_input_changed();

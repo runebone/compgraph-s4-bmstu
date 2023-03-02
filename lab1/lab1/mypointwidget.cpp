@@ -40,6 +40,11 @@ void MyPointWidget::update_index()
     label->setText(str);
 }
 
+bool MyPointWidget::is_input_valid()
+{
+    return this->is_valid_x_input && this->is_valid_y_input;
+}
+
 void MyPointWidget::on_x_input_changed()
 {
     QString str = this->x_input->text();
@@ -48,8 +53,10 @@ void MyPointWidget::on_x_input_changed()
 
     if (is_double) {
         emit this->x_input_changed(this->index, this->set, value);
+        this->is_valid_x_input = true;
     } else {
         emit this->invalid_input(this->index);
+        this->is_valid_x_input = false;
     }
 }
 
@@ -61,8 +68,10 @@ void MyPointWidget::on_y_input_changed()
 
     if (is_double) {
         emit this->y_input_changed(this->index, this->set, value);
+        this->is_valid_y_input = true;
     } else {
         emit this->invalid_input(this->index);
+        this->is_valid_y_input = false;
     }
 }
 
