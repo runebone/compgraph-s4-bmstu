@@ -25,6 +25,15 @@ private:
 
     QLabel *m_infoLabel;
 
+public slots:
+    void on_model_updated();
+
+    void on_clear_screen_clicked();
+
+    void on_key_pressed(QKeyEvent*);
+    void on_left_mouse_clicked(QMouseEvent*);
+    void on_right_mouse_clicked(QMouseEvent*);
+
 signals:
 
 };

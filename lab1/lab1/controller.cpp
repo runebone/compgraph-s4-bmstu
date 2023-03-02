@@ -10,7 +10,7 @@ Controller::Controller(Model *model, View *view, QObject *parent)
     connect(view->m_view, SIGNAL(rightMouseClicked(QMouseEvent*)), this, SLOT(on_right_mouse_clicked(QMouseEvent*)));
     connect(view->m_view, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(on_key_pressed(QKeyEvent*)));
 
-    connect(model, SIGNAL(updated()), view, SLOT());
+    connect(model, SIGNAL(updated()), view, SLOT(on_model_updated()));
 }
 
 Controller::~Controller()
