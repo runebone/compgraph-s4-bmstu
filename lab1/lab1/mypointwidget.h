@@ -16,6 +16,14 @@ class MyPointWidget : public QWidget
 public:
     explicit MyPointWidget(int index, const Point &point, QWidget *parent = nullptr);
 
+    void set_index(int index);
+    void set_point(const Point &point);
+    void set_set(Set set);
+
+    int index();
+    Set set();
+    Point point();
+
     void update_index();
     bool is_input_valid();
 

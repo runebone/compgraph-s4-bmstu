@@ -32,6 +32,36 @@ MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : Q
     connect(m_remove_button, SIGNAL(clicked()), this, SLOT(on_remove_button_clicked()));
 }
 
+void MyPointWidget::set_index(int index)
+{
+    m_index = index;
+}
+
+void MyPointWidget::set_point(const Point &point)
+{
+    m_point = point;
+}
+
+void MyPointWidget::set_set(Set set)
+{
+    m_set = set;
+}
+
+int MyPointWidget::index()
+{
+    return m_index;
+}
+
+Set MyPointWidget::set()
+{
+    return m_set;
+}
+
+Point MyPointWidget::point()
+{
+    return m_point;
+}
+
 void MyPointWidget::update_index()
 {
     // XXX: AOAOA consider index will always be at pos 0
