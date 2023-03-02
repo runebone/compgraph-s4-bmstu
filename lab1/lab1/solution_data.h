@@ -6,22 +6,6 @@
 #include "point.h"
 
 class SolutionData {
-    err_t status = ERR::SOLUTION_DATA_UNINITIALIZED;
-
-    Point circle_center1;
-    Point circle_center2;
-
-    double circle_radius1;
-    double circle_radius2;
-
-    std::vector<Point> hexagon1;
-    std::vector<Point> hexagon2;
-
-    std::vector<Point> polygon;
-    Point polygon_mass_center;
-
-    double area;
-
 public:
     err_t get_status();
 
@@ -54,6 +38,23 @@ public:
     void set_polygon_mass_center(const Point &polygon_mass_center);
 
     void set_area(const double &area);
+
+private:
+    err_t status = ERR::SOLUTION_DATA_UNINITIALIZED;
+
+    Point circle_center1;
+    Point circle_center2;
+
+    double circle_radius1;
+    double circle_radius2;
+
+    std::vector<Point> hexagon1;
+    std::vector<Point> hexagon2;
+
+    std::vector<Point> polygon;
+    Point polygon_mass_center;
+
+    double area;
 };
 
 #endif // __SOLUTION_DATA_H__
