@@ -11,7 +11,7 @@ MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : Q
     QString y_str = QString("%1").arg(point.y);
     this->x_input = new QLineEdit(x_str, this);
     this->y_input = new QLineEdit(y_str, this);
-    this->remove_btn = new QPushButton("-", this);
+    this->remove_button = new QPushButton("-", this);
 
     QString s = QString("%1.").arg(index + 1);
     QLabel *index_label = new QLabel(s, this);
@@ -25,11 +25,11 @@ MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : Q
     this->layout->addWidget(semicolumn);
     this->layout->addWidget(this->y_input);
     this->layout->addWidget(right_bracket);
-    this->layout->addWidget(this->remove_btn);
+    this->layout->addWidget(this->remove_button);
 
     connect(this->x_input, &QLineEdit::editingFinished, this, &MyPointWidget::on_x_input_changed);
     connect(this->y_input, &QLineEdit::editingFinished, this, &MyPointWidget::on_y_input_changed);
-    connect(this->remove_btn, SIGNAL(clicked()), this, SLOT(on_remove_button_clicked()));
+    connect(this->remove_button, SIGNAL(clicked()), this, SLOT(on_remove_button_clicked()));
 }
 
 void MyPointWidget::update_index()
@@ -69,5 +69,6 @@ void MyPointWidget::on_y_input_changed()
 void MyPointWidget::on_remove_button_clicked()
 {
     emit this->remove_button_clicked(this->index, this->set);
+
     delete this;
 }

@@ -2,7 +2,7 @@
 #define MYPOINTWIDGET_H
 
 #include "point.h"
-#include "set.h"
+#include "set_enum.h"
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -23,7 +23,7 @@ public:
     QHBoxLayout *layout;
     QLineEdit *x_input;
     QLineEdit *y_input;
-    QPushButton *remove_btn;
+    QPushButton *remove_button;
 
     void update_index();
 
@@ -36,6 +36,7 @@ signals:
     void x_input_changed(int point_index, Set set, double value);
     void y_input_changed(int point_index, Set set, double value);
     void remove_button_clicked(int point_index, Set set);
+
     void invalid_input(int point_index);
 };
 
