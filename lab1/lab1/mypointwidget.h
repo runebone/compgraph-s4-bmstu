@@ -16,19 +16,19 @@ class MyPointWidget : public QWidget
 public:
     explicit MyPointWidget(int index, const Point &point, QWidget *parent = nullptr);
 
-    int index;
-    Point point;
-    Set set = FIRST;
-
-    QHBoxLayout *layout;
-    QLineEdit *x_input;
-    QLineEdit *y_input;
-    QPushButton *remove_button;
-
     void update_index();
     bool is_input_valid();
 
 private:
+    int m_index;
+    Point m_point;
+    Set m_set = FIRST;
+
+    QHBoxLayout *m_layout;
+    QLineEdit *m_x_input;
+    QLineEdit *m_y_input;
+    QPushButton *m_remove_button;
+
     bool is_valid_x_input = true;
     bool is_valid_y_input = true;
 
