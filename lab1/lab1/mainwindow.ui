@@ -44,7 +44,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGraphicsView" name="graphicsView">
+         <widget class="MyGraphicsView" name="graphicsView">
           <property name="dragMode">
            <enum>QGraphicsView::NoDrag</enum>
           </property>
@@ -221,6 +221,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>mygraphicsview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

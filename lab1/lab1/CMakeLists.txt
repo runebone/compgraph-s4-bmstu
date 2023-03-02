@@ -23,10 +23,18 @@ set(PROJECT_SOURCES
         error.h error.cpp
         algorithm.h algorithm.cpp
         solution_data.h solution_data.cpp
+
+        # old_model.h old_model.cpp
+         old_view.h old_view.cpp
+        # old_controller.h old_controller.cpp
+
         model.h model.cpp
         view.h view.cpp
         controller.h controller.cpp
+
         mypointwidget.h mypointwidget.cpp
+        mygraphicsview.h mygraphicsview.cpp
+        mygraphicsscene.h mygraphicsscene.cpp
         set.h
 )
 
