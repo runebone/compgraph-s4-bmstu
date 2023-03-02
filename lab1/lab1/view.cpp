@@ -14,8 +14,8 @@ View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollAre
     m_rightLayout = new QVBoxLayout(rightScrollArea);
 
     // Binding layouts to ScrollAreas
-    QWidget *lWidget = new QWidget;
-    QWidget *rWidget = new QWidget;
+    QWidget *lWidget = new QWidget(leftScrollArea);
+    QWidget *rWidget = new QWidget(rightScrollArea);
     lWwidget->setLayout(m_leftLayout);
     rWwidget->setLayout(m_rightLayout);
     leftScrollArea->setWidget(lWidget);
