@@ -15,7 +15,6 @@ class View : public QObject
     Q_OBJECT
 public:
     explicit View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollArea *rightScrollArea, QLabel *infoLabel, QObject *parent = nullptr);
-    ~View();
 
 private:
     MyGraphicsView *m_view;

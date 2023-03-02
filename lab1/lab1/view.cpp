@@ -7,7 +7,7 @@ View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollAre
     m_view = graphicsView;
     m_infoLabel = infoLabel;
 
-    m_scene = new MyGraphicsScene;
+    m_scene = new MyGraphicsScene(this);
     m_view->setScene(m_scene);
 
     m_leftLayout = new QVBoxLayout(leftScrollArea);
@@ -20,11 +20,4 @@ View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollAre
     rWwidget->setLayout(m_rightLayout);
     leftScrollArea->setWidget(lWidget);
     rightScrollArea->setWidget(rWidget);
-}
-
-View::~View()
-{
-    delete m_scene;
-    delete m_leftLayout;
-    delete m_rightLayout;
 }
