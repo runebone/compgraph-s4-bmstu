@@ -57,7 +57,7 @@ private:
     std::string str;
 };
 
-err_t Algorithm::solve(const std::vector<Point> &first_set_points, const std::vector<Point> &second_set_points, SolutionData &out_solution_data) {
+err_t Algorithm::solve(std::vector<Point> &first_set_points, std::vector<Point> &second_set_points, SolutionData &out_solution_data) {
     err_t return_code = OK;
 
     return_code = solve_check_arguments(first_set_points, second_set_points);
