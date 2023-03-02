@@ -16,8 +16,13 @@
 
 class CustomScene : public QGraphicsScene
 {
+    Q_OBJECT
 public:
     CustomScene(QObject *parent = nullptr) : QGraphicsScene(parent) {}
+
+    qreal dx = 0.0;
+    qreal dy = 0.0;
+    qreal sf = 1.0;
 };
 
 class View : public QObject

@@ -9,6 +9,8 @@
 #include <cstdio>
 #include "point.h"
 
+// #define ENABLE_TEXT
+
 void handle_zoom(QGraphicsItem* item, qreal scale_factor);
 
 enum Side { LEFT, RIGHT, UP, DOWN };
@@ -189,10 +191,30 @@ void View::draw_points()
 
     for (Point p: fsp) {
         this->draw_point(p, FIRST_SET_COLOR);
+
+#ifdef ENABLE_TEXT
+        // XXX DRAW TEXT
+        QString text = QString("(%1, %2)").arg(p.x).arg(p.y);
+        QGraphicsTextItem* textItem = new QGraphicsTextItem(text);
+        textItem->setPos(p.x,  -p.y);
+        textItem->setFont(QFont("Mononoki", 4));
+
+        this->scene->addItem(textItem);
+#endif
     }
 
     for (Point p: ssp) {
         this->draw_point(p, SECOND_SET_COLOR);
+
+#ifdef ENABLE_TEXT
+        // XXX DRAW TEXT
+        QString text = QString("(%1, %2)").arg(p.x).arg(p.y);
+        QGraphicsTextItem* textItem = new QGraphicsTextItem(text);
+        textItem->setPos(p.x,  -p.y);
+        textItem->setFont(QFont("Mononoki", 4));
+
+        this->scene->addItem(textItem);
+#endif
     }
 }
 
@@ -299,6 +321,14 @@ void View::resize_fit_all()
     QRectF boundingRect = this->scene->itemsBoundingRect();
     this->scene->setSceneRect(boundingRect);
     this->view->fitInView(boundingRect, Qt::KeepAspectRatio);
+
+    // AOAOAO
+    // foreach(QGraphicsItem* item, this->scene->items()) {
+        // if (item->type() != PointItem::Type) {
+            // item->setX(item->x() - this->scene->dx);
+            // item->setY(item->y() - this->scene->dy);
+        // }
+    // }
 }
 
 void View::resize_fit_solution()
@@ -338,6 +368,19 @@ void handle_zoom(QGraphicsItem* item, qreal scale_factor) {
             pen.setWidthF(scale_factor);
         }
         ellipseItem->setPen(pen);
+    } else if (item->type() == QGraphicsTextItem::Type) {
+        // TEXT
+        QGraphicsTextItem* textItem = qgraphicsitem_cast<QGraphicsTextItem*>(item);
+
+        // QRectF rect = textItem->boundingRect();
+
+        // qreal new_width = rect.width() * scale_factor;
+        // qreal new_height = rect.height() * scale_factor;
+
+        // rect.setWidth(new_width);
+        // rect.setHeight(new_height);
+
+        textItem->setScale(scale_factor);
     }
 }
 
@@ -351,30 +394,38 @@ void move_point(QGraphicsItem *item, qreal dx, qreal dy) {
 }
 
 void move_item(QGraphicsItem *item, qreal translate_speed, qreal sf, Side where) {
+    qreal dx = 0;
+    qreal dy = 0;
+
     if (where == RIGHT) {
-        qreal dx = translate_speed * sf;
-        qreal dy = 0;
+        dx = translate_speed * sf;
+        dy = 0;
         if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
         item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == LEFT) {
-        qreal dx = -translate_speed * sf;
-        qreal dy = 0;
+        dx = -translate_speed * sf;
+        dy = 0;
         if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
         item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == UP) {
-        qreal dx = 0;
-        qreal dy = -translate_speed * sf;
+        dx = 0;
+        dy = -translate_speed * sf;
         if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
         item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
     else if (where == DOWN) {
-        qreal dx = 0;
-        qreal dy = translate_speed * sf;
+        dx = 0;
+        dy = translate_speed * sf;
         if (item->type() == PointItem::Type) { move_point(item, dx, dy); }
         item->setPos(item->pos().x() + dx, item->pos().y() + dy);
     }
+
+    // FIXME
+    CustomScene* scene = qobject_cast<CustomScene*>(item->scene());
+    scene->dx += dx;
+    scene->dy += dy;
 }
 
 void View::key_press_event(QKeyEvent *event)
@@ -441,9 +492,19 @@ void View::key_press_event(QKeyEvent *event)
             handle_zoom(item, sf * LINES_WIDTH);
         }
     }
-    else {
+    else if (event->key() == Qt::Key_0) {
         // QGraphicsView::keyPressEvent(event);
+        this->clear();
+        this->redraw_points();
     }
+    // else if (event->key() == Qt::Key_S) {
+        // foreach(QGraphicsItem* item, this->scene->items()) {
+            // if (item->type() == PointItem::Type) {
+                // PointItem* point = qgraphicsitem_cast<PointItem*>(item);
+                // point->toggle_selected(10);
+            // }
+        // }
+    // }
 }
 
 void View::on_invalid_input1(int point_index)
@@ -463,6 +524,10 @@ void View::on_invalid_input2(int point_index)
 void View::redraw_points() {
     foreach (QGraphicsItem* item, this->scene->items()) {
         if (item->type() == PointItem::Type) {
+            delete item;
+        }
+        // TEXT
+        else if (item->type() == QGraphicsTextItem::Type) {
             delete item;
         }
     }
