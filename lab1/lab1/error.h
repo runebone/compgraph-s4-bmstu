@@ -27,6 +27,8 @@ std::string get_error_description(Error error);
 void print_error(Error error);
 #endif // ENABLE_ERROR_FUNCS
 
+bool isNotError(Error error);
+
 #define OK Error::OK
 #define ERR Error
 

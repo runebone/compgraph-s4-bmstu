@@ -54,3 +54,17 @@ void print_error(Error error) {
     std::string description = get_error_description(error);
     std::cout << description << std::endl;
 }
+
+bool isNotError(Error error)
+{
+    switch (error) {
+    case OK:
+        return true;
+    case Error::POLYGONS_DO_NOT_INTERSECT:
+        return true;
+    case Error::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION:
+        return true;
+    default:
+        return false;
+    }
+}
