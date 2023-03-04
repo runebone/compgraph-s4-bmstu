@@ -26,10 +26,7 @@ err_t Model::solve()
 {
     err_t status = Algorithm::solve(m_modelData.firstSetPoints, m_modelData.secondSetPoints, m_modelData.solutionData);
 
-    // XXX: ugly
-    if (status == OK
-            || status == ERR::POLYGONS_DO_NOT_INTERSECT
-            || status == ERR::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION)
+    if (isNotError(status))
     {
         emit updated();
     }
