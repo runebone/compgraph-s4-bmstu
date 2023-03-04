@@ -82,32 +82,30 @@ void MyPointWidget::on_x_input_changed()
     double value = str.toDouble(&is_double);
 
     if (is_double) {
-        emit x_input_changed(m_index, m_set, value);
         is_valid_x_input = true;
+        emit x_input_changed(m_index, value, m_set);
     } else {
-        emit invalid_input(m_index);
         is_valid_x_input = false;
+        emit invalid_input(m_index);
     }
 }
 
 void MyPointWidget::on_y_input_changed()
 {
-    QString str = this->y_input->text();
+    QString str = m_y_input->text();
     bool is_double = false;
     double value = str.toDouble(&is_double);
 
     if (is_double) {
-        emit y_input_changed(m_index, m_set, value);
         is_valid_y_input = true;
+        emit y_input_changed(m_index, value, m_set);
     } else {
-        emit invalid_input(m_index);
         is_valid_y_input = false;
+        emit invalid_input(m_index);
     }
 }
 
 void MyPointWidget::on_remove_button_clicked()
 {
     emit remove_button_clicked(m_index, m_set);
-
-    delete this;
 }
