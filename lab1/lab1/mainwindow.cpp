@@ -10,16 +10,14 @@ MainWindow::MainWindow(QWidget *parent)
     // Create MVC
     Model *model = new Model;
     View *view = new View(ui->graphicsView, ui->scrollAreaLeft, ui->scrollAreaRight, ui->descriptionLabel);
-
-    view->set_model(model);
-
     Controller *controller = new Controller(model, view, this);
+
     this->controller = controller;
 
     // Connect UI signals to Controller
     connect(this, SIGNAL(solve_button_clicked()), controller, SLOT(on_solve_button_clicked()));
-    connect(this, SIGNAL(add1_button_clicked()), controller, SLOT(on_add1_button_clicked()));
-    connect(this, SIGNAL(add2_button_clicked()), controller, SLOT(on_add2_button_clicked()));
+    connect(this, SIGNAL(add1_button_clicked()), controller, SLOT(on_add_button_1_clicked()));
+    connect(this, SIGNAL(add2_button_clicked()), controller, SLOT(on_add_button_2_clicked()));
     connect(this, SIGNAL(load_from_file_button_clicked(QString)), controller, SLOT(on_load_from_file_button_clicked(QString)));
     connect(this, SIGNAL(back_button_clicked()), controller, SLOT(on_back_button_clicked()));
     connect(this, SIGNAL(clear_screen()), controller, SLOT(on_clear_screen_clicked()));

@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 
-#include "old_controller.h"
+// #include "old_controller.h"
+#include "controller.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
