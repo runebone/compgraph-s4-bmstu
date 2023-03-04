@@ -56,7 +56,8 @@ class History {
 public:
     void push(const ModelMemento& memento);
     ModelMemento pop();
-    size_t size();
+    ModelMemento back() const;
+    size_t size() const;
 
 private:
     std::vector<ModelMemento> m_mementos;

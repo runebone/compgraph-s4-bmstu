@@ -101,7 +101,12 @@ ModelMemento History::pop() {
     return memento;
 }
 
-size_t History::size()
+ModelMemento History::back() const
+{
+    return m_mementos.back();
+}
+
+size_t History::size() const
 {
     return m_mementos.size();
 }
