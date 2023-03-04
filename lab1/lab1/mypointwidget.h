@@ -14,13 +14,13 @@ class MyPointWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MyPointWidget(int index, const Point &point, QWidget *parent = nullptr);
+    explicit MyPointWidget(size_t index, const Point &point, QWidget *parent = nullptr);
 
-    void set_index(int index);
+    void set_index(size_t index);
     void set_point(const Point &point);
     void set_set(Set set);
 
-    int index();
+    size_t index();
     Set set();
     Point point();
 
@@ -28,7 +28,7 @@ public:
     bool is_input_valid();
 
 private:
-    int m_index;
+    size_t m_index;
     Point m_point;
     Set m_set = FIRST;
 
@@ -46,11 +46,11 @@ public slots:
     void on_remove_button_clicked();
 
 signals:
-    void x_input_changed(int point_index, Set set, double value);
-    void y_input_changed(int point_index, Set set, double value);
-    void remove_button_clicked(int point_index, Set set);
+    void x_input_changed(size_t point_index, double value, Set set);
+    void y_input_changed(size_t point_index, double value, Set set);
+    void remove_button_clicked(size_t point_index, Set set);
 
-    void invalid_input(int point_index);
+    void invalid_input(size_t point_index);
 };
 
 #endif // MYPOINTWIDGET_H

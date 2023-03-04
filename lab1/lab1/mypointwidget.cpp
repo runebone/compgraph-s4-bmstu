@@ -1,6 +1,6 @@
 #include "mypointwidget.h"
 
-MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : QWidget(parent)
+MyPointWidget::MyPointWidget(size_t index, const Point& point, QWidget *parent) : QWidget(parent)
 {
     m_index = index;
     m_point = point;
@@ -32,7 +32,7 @@ MyPointWidget::MyPointWidget(int index, const Point& point, QWidget *parent) : Q
     connect(m_remove_button, SIGNAL(clicked()), this, SLOT(on_remove_button_clicked()));
 }
 
-void MyPointWidget::set_index(int index)
+void MyPointWidget::set_index(size_t index)
 {
     m_index = index;
 }
@@ -47,7 +47,7 @@ void MyPointWidget::set_set(Set set)
     m_set = set;
 }
 
-int MyPointWidget::index()
+size_t MyPointWidget::index()
 {
     return m_index;
 }
