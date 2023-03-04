@@ -19,7 +19,7 @@ public:
 
 class ModelMemento {
 public:
-    ModelMemento(ModelData &modelData);
+    ModelMemento(ModelData modelData);
 
     ModelData getData() const;
 
@@ -47,11 +47,15 @@ public:
     void update_point(size_t index, const Point &point, Set set);
     void replace_points(const std::vector<Point> &points, Set set);
 
+    void dbg_emit_updated();
+
 private:
     ModelData m_modelData;
 
 signals:
     void updated(ModelData);
+    void memento_restored(ModelData);
+    void dbg_updated();
 };
 
 class History {

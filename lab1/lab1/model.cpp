@@ -1,5 +1,7 @@
 #include "model.h"
 
+#include <QDebug>
+
 Model::Model(QObject *parent) : QObject(parent) {}
 
 void Model::setData(ModelData &modelData)
@@ -13,12 +15,12 @@ ModelData Model::getData() const {
 }
 
 ModelMemento Model::createMemento() const {
-    return Memento(m_modelData);
+    return ModelMemento(m_modelData);
 }
 
 void Model::restoreMemento(const ModelMemento &memento) {
     m_modelData = memento.getData();
-    emit updated(m_modelData);
+    emit memento_restored(m_modelData);
 }
 
 #include "algorithm.h"
@@ -42,7 +44,7 @@ Point Model::get_point(size_t index, Set set) const
     if (set == FIRST && index >= m_modelData.firstSetPoints.size()
             || set == SECOND && index >= m_modelData.secondSetPoints.size())
     {
-        qDebug() << "Error: Index out of bounds! (remove point)";
+        qDebug() << "Error: Index out of bounds! (get point)";
         return { 0.0, 0.0 };
     }
 
@@ -71,6 +73,7 @@ void Model::add_point(const Point &point, Set set)
 void Model::remove_point(size_t index, Set set)
 {
     // XXX DEBUG
+    qDebug() << "Index:" << index << "Size of fsp:" << m_modelData.firstSetPoints.size();
     if (set == FIRST && index >= m_modelData.firstSetPoints.size()
             || set == SECOND && index >= m_modelData.secondSetPoints.size())
     {
@@ -102,11 +105,13 @@ void Model::update_point(size_t index, const Point &point, Set set)
     if (set == FIRST) {
         auto &vec = m_modelData.firstSetPoints;
         vec.at(index) = point;
-        emit updated(m_modelData);
+        // emit updated(m_modelData); // For some reason program crushes from time to time
+        emit dbg_updated();
     } else if (set == SECOND) {
         auto &vec = m_modelData.secondSetPoints;
         vec.at(index) = point;
-        emit updated(m_modelData);
+        // emit updated(m_modelData);
+        emit dbg_updated();
     }
 }
 
@@ -123,7 +128,12 @@ void Model::replace_points(const std::vector<Point> &points, Set set)
     }
 }
 
-ModelMemento::ModelMemento(ModelData &modelData) {
+void Model::dbg_emit_updated()
+{
+    emit updated(m_modelData);
+}
+
+ModelMemento::ModelMemento(ModelData modelData) {
     m_modelData = modelData;
 }
 
@@ -131,7 +141,11 @@ ModelData ModelMemento::getData() const {
     return m_modelData;
 }
 
+#define HISTORY_SIZE 100
 void History::push(const ModelMemento &memento) {
+    if (m_mementos.size() == HISTORY_SIZE) {
+        m_mementos.erase(m_mementos.begin() + 1);
+    }
     m_mementos.push_back(memento);
 }
 
