@@ -1,6 +1,7 @@
 #include "view.h"
 
 #include <QWidget>
+#include <QGraphicsObject>
 
 View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollArea *rightScrollArea, QLabel *infoLabel, QObject *parent)
 {
@@ -69,6 +70,19 @@ void View::addPointsToLayout(QLayout *layout, std::vector<Point> &points, Set se
     }
 }
 
+void clearScene(QGraphicsScene *scene) {
+    QList<QGraphicsItem*> items = scene->items();
+
+    for (auto item : items) {
+        QGraphicsObject* object = dynamic_cast<QGraphicsObject*>(item);
+        if (object) {
+            delete object;
+        }
+    }
+
+    scene->clear();
+}
+
 void View::on_model_updated(ModelData md)
 {
     clearLayout(m_leftLayout);
@@ -77,6 +91,7 @@ void View::on_model_updated(ModelData md)
     addPointsToLayout(m_leftLayout, md.firstSetPoints, FIRST);
     addPointsToLayout(m_rightLayout, md.secondSetPoints, SECOND);
 
+    clearScene(m_scene);
     // TODO
 }
 
