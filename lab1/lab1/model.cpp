@@ -37,6 +37,51 @@ err_t Model::solve()
     return status;
 }
 
+void Model::add_point(const Point &point, Set set)
+{
+    if (set == FIRST) {
+        m_modelData.firstSetPoints.push_back(point);
+        emit updated();
+    } else if (set == SECOND) {
+        m_modelData.secondSetPoints.push_back(point);
+        emit updated();
+    }
+}
+
+void Model::remove_point(size_t index, Set set)
+{
+    // XXX DEBUG
+    if (set == FIRST && index >= m_modelData.firstSetPoints.size()
+            || set == SECOND && index >= m_modelData.secondSetPoints.size())
+    {
+        qDebug() << "Error: Index out of bounds!";
+        return;
+    }
+
+    if (set == FIRST) {
+        auto &vec = m_modelData.firstSetPoints;
+        vec.erase(vec.begin() + index);
+        emit updated();
+    } else if (set == SECOND) {
+        auto &vec = m_modelData.secondSetPoints;
+        vec.erase(vec.begin() + index);
+        emit updated();
+    }
+}
+
+void Model::replace_points(const std::vector<Point> &points, Set set)
+{
+    if (set == FIRST) {
+        auto &vec = m_modelData.firstSetPoints;
+        vec = points;
+        emit updated();
+    } else if (set == SECOND) {
+        auto &vec = m_modelData.secondSetPoints;
+        vec = points;
+        emit updated();
+    }
+}
+
 ModelMemento::ModelMemento(ModelData &modelData) {
     m_modelData = modelData;
 }
@@ -54,4 +99,9 @@ ModelMemento History::pop() {
     m_mementos.pop_back();
 
     return memento;
+}
+
+size_t History::size()
+{
+    return m_mementos.size();
 }

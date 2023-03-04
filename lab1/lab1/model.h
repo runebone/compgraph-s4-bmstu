@@ -7,8 +7,10 @@
 #include "point.h"
 #include "error.h"
 #include "solution_data.h"
+#include "set_enum.h"
 
 class ModelData {
+public:
     std::vector<Point> firstSetPoints;
     std::vector<Point> secondSetPoints;
 
@@ -39,10 +41,12 @@ public:
 
     err_t solve();
 
+    void add_point(const Point &point, Set set);
+    void remove_point(size_t index, Set set);
+    void replace_points(const std::vector<Point> &points, Set set);
+
 private:
     ModelData m_modelData;
-
-public slots:
 
 signals:
     void updated();
@@ -52,6 +56,7 @@ class History {
 public:
     void push(const ModelMemento& memento);
     ModelMemento pop();
+    size_t size();
 
 private:
     std::vector<ModelMemento> m_mementos;
