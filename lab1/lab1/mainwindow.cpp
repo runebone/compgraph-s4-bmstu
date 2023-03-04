@@ -64,7 +64,10 @@ void MainWindow::on_loadFromFileButton_clicked()
 {
     // Should have been entirely in Controller
     QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/human/University/cg/lab1", "Text File (*.txt)");
-    emit this->load_from_file_button_clicked(filename);
+
+    if (!filename.isNull()) {
+        emit this->load_from_file_button_clicked(filename);
+    }
 }
 
 
