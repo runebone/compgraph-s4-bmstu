@@ -34,6 +34,29 @@ err_t Model::solve()
     return status;
 }
 
+Point Model::get_point(size_t index, Set set) const
+{
+    Point point;
+
+    // XXX DEBUG
+    if (set == FIRST && index >= m_modelData.firstSetPoints.size()
+            || set == SECOND && index >= m_modelData.secondSetPoints.size())
+    {
+        qDebug() << "Error: Index out of bounds! (remove point)";
+        return { 0.0, 0.0 };
+    }
+
+    if (set == FIRST) {
+        auto &vec = m_modelData.firstSetPoints;
+        point = vec.at(index);
+    } else if (set == SECOND) {
+        auto &vec = m_modelData.secondSetPoints;
+        point = vec.at(index);
+    }
+
+    return point;
+}
+
 void Model::add_point(const Point &point, Set set)
 {
     if (set == FIRST) {

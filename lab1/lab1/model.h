@@ -41,6 +41,7 @@ public:
 
     err_t solve();
 
+    Point get_point(size_t index, Set set) const;
     void add_point(const Point &point, Set set);
     void remove_point(size_t index, Set set);
     void update_point(size_t index, const Point &point, Set set);
