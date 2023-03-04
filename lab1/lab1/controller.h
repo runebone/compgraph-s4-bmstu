@@ -19,6 +19,8 @@ private:
     History *m_history;
 
 public slots:
+    void on_model_updated();
+
     void on_solve_button_clicked();
     void on_add_button_1_clicked();
     void on_add_button_2_clicked();
@@ -32,10 +34,6 @@ public slots:
 
 signals:
     void solve_button_clicked();
-    void add_button_1_clicked();
-    void add_button_2_clicked();
-    // void load_from_file_button_clicked(QString);
-    // void back_button_clicked();
     void clear_screen_clicked();
 
     void key_pressed(QKeyEvent*);
