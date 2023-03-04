@@ -43,13 +43,14 @@ public:
 
     void add_point(const Point &point, Set set);
     void remove_point(size_t index, Set set);
+    void update_point(size_t index, const Point &point, Set set);
     void replace_points(const std::vector<Point> &points, Set set);
 
 private:
     ModelData m_modelData;
 
 signals:
-    void updated();
+    void updated(ModelData);
 };
 
 class History {
