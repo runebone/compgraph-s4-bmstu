@@ -1,6 +1,8 @@
 #ifndef __ERROR_H__
 #define __ERROR_H__
 
+#include <string>
+
 enum class Error {
     OK = 0,
     SOLUTION_DATA_UNINITIALIZED,
@@ -20,14 +22,8 @@ enum class Error {
     LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION,
 };
 
-#ifdef ENABLE_ERROR_FUNCS
-#include <iostream>
-#include <string>
-std::string get_error_description(Error error);
-void print_error(Error error);
-#endif // ENABLE_ERROR_FUNCS
-
 bool isNotError(Error error);
+std::string getErrorDescription(Error error);
 
 #define OK Error::OK
 #define ERR Error

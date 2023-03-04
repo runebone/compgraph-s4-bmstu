@@ -1,7 +1,7 @@
 #define ENABLE_ERROR_FUNCS
 #include "error.h"
 
-std::string get_error_description(Error error) {
+std::string getErrorDescription(Error error) {
     std::string description;
 
     switch (error) {
@@ -48,11 +48,6 @@ std::string get_error_description(Error error) {
     }
 
     return description;
-}
-
-void print_error(Error error) {
-    std::string description = get_error_description(error);
-    std::cout << description << std::endl;
 }
 
 bool isNotError(Error error)
