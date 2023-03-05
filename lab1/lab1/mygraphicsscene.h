@@ -10,6 +10,8 @@ class MyGraphicsScene : public QGraphicsScene
 public:
     MyGraphicsScene(QObject *parent = nullptr) : QGraphicsScene(parent) {}
 
+protected:
+    void drawBackground(QPainter* painter, const QRectF& rect) override;
 signals:
 
 };
