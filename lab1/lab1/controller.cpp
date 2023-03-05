@@ -13,7 +13,13 @@ Controller::Controller(Model *model, View *view, QObject *parent)
 
     connect(view->getView(), SIGNAL(leftMouseClicked(QMouseEvent*)), this, SLOT(on_left_mouse_clicked(QMouseEvent*)));
     connect(view->getView(), SIGNAL(rightMouseClicked(QMouseEvent*)), this, SLOT(on_right_mouse_clicked(QMouseEvent*)));
+    connect(view->getView(), SIGNAL(middleMouseClicked(QMouseEvent*)), this, SLOT(on_middle_mouse_clicked(QMouseEvent*)));
     connect(view->getView(), SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(on_key_pressed(QKeyEvent*)));
+
+    connect(this, SIGNAL(left_mouse_clicked(QMouseEvent*)), view, SLOT(on_left_mouse_clicked(QMouseEvent*)));
+    connect(this, SIGNAL(right_mouse_clicked(QMouseEvent*)), view, SLOT(on_right_mouse_clicked(QMouseEvent*)));
+    connect(this, SIGNAL(middle_mouse_clicked(QMouseEvent*)), view, SLOT(on_middle_mouse_clicked(QMouseEvent*)));
+    connect(this, SIGNAL(key_pressed(QKeyEvent*)), view, SLOT(on_key_pressed(QKeyEvent*)));
 
     connect(model, SIGNAL(dbg_updated()), this, SLOT(on_model_updated()));
     connect(model, SIGNAL(updated(ModelData)), this, SLOT(on_model_updated()));
@@ -132,4 +138,9 @@ void Controller::on_left_mouse_clicked(QMouseEvent *event)
 void Controller::on_right_mouse_clicked(QMouseEvent *event)
 {
     emit right_mouse_clicked(event);
+}
+
+void Controller::on_middle_mouse_clicked(QMouseEvent *event)
+{
+    emit middle_mouse_clicked(event);
 }

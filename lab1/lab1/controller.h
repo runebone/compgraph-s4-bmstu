@@ -31,6 +31,7 @@ public slots:
     void on_key_pressed(QKeyEvent*);
     void on_left_mouse_clicked(QMouseEvent*);
     void on_right_mouse_clicked(QMouseEvent*);
+    void on_middle_mouse_clicked(QMouseEvent*);
 
 signals:
     void solve_button_clicked();
@@ -39,6 +40,7 @@ signals:
     void key_pressed(QKeyEvent*);
     void left_mouse_clicked(QMouseEvent*);
     void right_mouse_clicked(QMouseEvent*);
+    void middle_mouse_clicked(QMouseEvent*);
 };
 
 #endif // CONTROLLER_H
