@@ -110,6 +110,10 @@ void handleZoom(QGraphicsItem* item, qreal scale_factor) {
 
         pointItem->setRect(0, 0, new_width, new_height);
         pointItem->setPos(pos.x() - new_width/2, pos.y() - new_height/2);
+
+        QPen pen = pointItem->pen();
+        pen.setWidthF(LINES_WIDTH * scale_factor);
+        pointItem->setPen(pen);
     } else if (item->type() == QGraphicsPolygonItem::Type) {
         QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
 
@@ -274,9 +278,19 @@ void toggle(QGraphicsItem *item) {
     if (!item->isSelected()) {
         item->setSelected(true);
         item->setOpacity(0.5);
+
+        if (item->type() == MyPointItem::Type) {
+            MyPointItem *mp = qgraphicsitem_cast<MyPointItem*>(item);
+            mp->setPen(QPen(FILL_COLOR, 0.1)); // XXX 0.1
+        }
     } else {
         item->setSelected(false);
         item->setOpacity(1.0);
+
+        if (item->type() == MyPointItem::Type) {
+            MyPointItem *mp = qgraphicsitem_cast<MyPointItem*>(item);
+            mp->setPen(Qt::NoPen);
+        }
     }
 }
 
