@@ -241,6 +241,26 @@ void View::on_model_updated(ModelData md)
     resize::scene(m_scene, m_view);
 
     resize::fit(m_scene, m_view); // XXX
+
+    {
+        QString info;
+        err_t status = md.solutionData.get_status();
+
+        if (status == OK) {
+            double area;
+            md.solutionData.get_area(area);
+            info = QString("Площадь пересечения: %1").arg(area);
+        } else if (status == ERR::LESS_THAN_THREE_POINTS_OF_POLYGONS_INTERSECTION) {
+            info = QString("Шестиугольники касаются друг друга. Площадь пересечения: 0.0");
+        } else if (status == ERR::POLYGONS_DO_NOT_INTERSECT) {
+            info = QString("Шестиугольники не пересекаются.");
+        } else {
+            std::string error_description = getErrorDescription(status);
+            info = QString::fromStdString(error_description);
+        }
+
+        m_infoLabel->setText(info);
+    }
 }
 
 void View::on_clear_screen_clicked()
