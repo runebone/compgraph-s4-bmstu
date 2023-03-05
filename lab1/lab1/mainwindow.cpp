@@ -1,11 +1,17 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+QString get_task_text() {
+    return QString("Заданы два множества точек на плоскости. В каждом множестве найти три равноудалѐнные друг от друга точки. Через эти точки провести окружности. В каждую окружность вписать шестиугольник. Найти площадь пересечения двух получившихся шестиугольников.");
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    this->ui->descriptionLabel->setText(get_task_text());
 
     // Create MVC
     Model *model = new Model;
@@ -31,7 +37,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionTask_triggered()
 {
-    QString text = "Заданы два множества точек на плоскости. В каждом множестве найти три равноудалѐнные друг от друга точки. Через эти точки провести окружности. В каждую окружность вписать шестиугольник. Найти площадь пересечения двух получившихся шестиугольников.";
+    QString text = get_task_text();
     this->ui->descriptionLabel->setText(text);
 }
 
