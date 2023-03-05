@@ -28,10 +28,11 @@ err_t Model::solve()
 {
     err_t status = Algorithm::solve(m_modelData.firstSetPoints, m_modelData.secondSetPoints, m_modelData.solutionData);
 
-    if (isNotError(status))
+    if (!isNotError(status)) // XXX better call isError
     {
-        emit updated(m_modelData);
+        m_modelData.solutionData.set_status(status);
     }
+    emit updated(m_modelData);
 
     return status;
 }
@@ -107,11 +108,13 @@ void Model::update_point(size_t index, const Point &point, Set set)
         vec.at(index) = point;
         // emit updated(m_modelData); // For some reason program crushes from time to time
         emit dbg_updated();
+        // dbg_emit_updated();
     } else if (set == SECOND) {
         auto &vec = m_modelData.secondSetPoints;
         vec.at(index) = point;
         // emit updated(m_modelData);
         emit dbg_updated();
+        // dbg_emit_updated();
     }
 }
 
