@@ -45,6 +45,7 @@ public:
     void add_point(const Point &point, Set set);
     void remove_point(size_t index, Set set);
     void update_point(size_t index, const Point &point, Set set);
+    void dbg_update_point(size_t index, const Point &point, Set set); // XXX
     void replace_points(const std::vector<Point> &points, Set set);
 
     void dbg_emit_updated();

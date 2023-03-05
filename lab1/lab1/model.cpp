@@ -106,15 +106,37 @@ void Model::update_point(size_t index, const Point &point, Set set)
     if (set == FIRST) {
         auto &vec = m_modelData.firstSetPoints;
         vec.at(index) = point;
-        // emit updated(m_modelData); // For some reason program crushes from time to time
-        emit dbg_updated();
+        emit updated(m_modelData); // For some reason program crushes when changing coordinates from scrollareas
+        // emit dbg_updated();
         // dbg_emit_updated();
     } else if (set == SECOND) {
         auto &vec = m_modelData.secondSetPoints;
         vec.at(index) = point;
-        // emit updated(m_modelData);
-        emit dbg_updated();
+        emit updated(m_modelData);
+        // emit dbg_updated();
         // dbg_emit_updated();
+    }
+}
+
+void Model::dbg_update_point(size_t index, const Point &point, Set set)
+{
+    // XXX DEBUG
+    if (set == FIRST && index >= m_modelData.firstSetPoints.size()
+            || set == SECOND && index >= m_modelData.secondSetPoints.size())
+    {
+        qDebug() << "Error: Index out of bounds! (update point)";
+        return;
+    }
+
+    if (set == FIRST) {
+        auto &vec = m_modelData.firstSetPoints;
+        vec.at(index) = point;
+        emit dbg_updated();
+    } else if (set == SECOND) {
+        auto &vec = m_modelData.secondSetPoints;
+        vec.at(index) = point;
+        emit updated(m_modelData);
+        emit dbg_updated();
     }
 }
 
