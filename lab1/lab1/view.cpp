@@ -211,6 +211,11 @@ void scene(QGraphicsScene *scene, QGraphicsView *view) {
         handleZoom(item, scale_factor);
     }
 }
+
+void fit(QGraphicsScene *scene, QGraphicsView *view) {
+    view->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
+    resize::scene(scene, view);
+}
 }
 
 void View::on_model_updated(ModelData md)
@@ -230,6 +235,8 @@ void View::on_model_updated(ModelData md)
     m_view->fitInView(r, Qt::KeepAspectRatio);
 
     resize::scene(m_scene, m_view);
+
+    resize::fit(m_scene, m_view); // XXX
 }
 
 void View::on_clear_screen_clicked()
@@ -382,32 +389,25 @@ void View::on_middle_mouse_clicked(QMouseEvent *event)
 void View::on_key_pressed(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Delete) {
-        // TODO
         util::delete_selected_points(m_scene, m_model);
-        qDebug() << event->key();
     } else if (event->key() == Qt::Key_F5) {
         m_model->dbg_emit_updated();
-        qDebug() << event->key();
     } else if (event->key() == Qt::Key_Equal) {
-        resize::scene(m_scene, m_view);
+        resize::fit(m_scene, m_view);
     } else if (event->key() == Qt::Key_I) {
-        const double sf = 1.2;
+        const double sf = 1.2; // XXX meh hardcode
 
         QTransform matrix = m_view->transform();
         matrix.scale(sf, sf);
         m_view->setTransform(matrix);
-
-        qDebug() << m_view->transform();
 
         resize::scene(m_scene, m_view);
     } else if (event->key() == Qt::Key_O) {
-        const double sf = 0.8;
+        const double sf = 0.8; // XXX
 
         QTransform matrix = m_view->transform();
         matrix.scale(sf, sf);
         m_view->setTransform(matrix);
-
-        qDebug() << m_view->transform();
 
         resize::scene(m_scene, m_view);
     }
@@ -417,16 +417,14 @@ void View::on_point_x_changed(size_t index, double value, Set set)
 {
     Point p = m_model->get_point(index, set);
     p.x = value;
-    m_model->update_point(index, p, set);
-    // m_model->dbg_emit_updated();
+    m_model->dbg_update_point(index, p, set);
 }
 
 void View::on_point_y_changed(size_t index, double value, Set set)
 {
     Point p = m_model->get_point(index, set);
     p.y = value;
-    m_model->update_point(index, p, set);
-    // m_model->dbg_emit_updated();
+    m_model->dbg_update_point(index, p, set);
 }
 
 void View::on_point_remove_clicked(size_t index, Set set)
