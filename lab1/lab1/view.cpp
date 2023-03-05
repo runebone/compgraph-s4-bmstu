@@ -14,8 +14,9 @@
 
 #define FILL_COLOR QColor("#fbb829")
 
-#define POINT_SIZE 1.0
-#define LINES_WIDTH 1.0
+#define POINT_SIZE 16.0
+#define LINES_WIDTH 4.0
+#define MAX_PEN_WIDTH 100.0
 
 View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollArea *rightScrollArea, QLabel *infoLabel, QObject *parent)
 {
@@ -97,6 +98,38 @@ void clearScene(QGraphicsScene *scene) {
     scene->clear();
 }
 
+void handleZoom(QGraphicsItem* item, qreal scale_factor) {
+    // Make points constant size independently of zoom
+    if (item->type() == MyPointItem::Type) {
+        MyPointItem* pointItem = qgraphicsitem_cast<MyPointItem*>(item);
+
+        qreal new_width = POINT_SIZE * scale_factor;
+        qreal new_height = POINT_SIZE * scale_factor;
+
+        QPointF pos = pointItem->getPos();
+
+        pointItem->setRect(0, 0, new_width, new_height);
+        pointItem->setPos(pos.x() - new_width/2, pos.y() - new_height/2);
+    } else if (item->type() == QGraphicsPolygonItem::Type) {
+        QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
+
+        QPen pen = polygonItem->pen();
+        if (scale_factor < MAX_PEN_WIDTH) {
+            pen.setWidthF(LINES_WIDTH * scale_factor);
+        }
+        polygonItem->setPen(pen);
+    } else if (item->type() == QGraphicsEllipseItem::Type) {
+        QGraphicsEllipseItem* ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem*>(item);
+
+        QPen pen = ellipseItem->pen();
+        if (scale_factor < MAX_PEN_WIDTH) {
+            pen.setWidthF(LINES_WIDTH * scale_factor);
+        }
+        ellipseItem->setPen(pen);
+    }
+}
+
+
 namespace draw {
 void point(QGraphicsScene *scene, const Point &p, QColor color) {
     MyPointItem *figure = new MyPointItem(p.x, p.y, POINT_SIZE, POINT_SIZE, color);
@@ -172,6 +205,12 @@ void model(QGraphicsScene *scene, const ModelData &md, QColor first = FIRST_SET_
 }
 
 namespace resize {
+void scene(QGraphicsScene *scene, QGraphicsView *view) {
+    qreal scale_factor = 1.0 / view->transform().m11();
+    for (QGraphicsItem *item : scene->items()) {
+        handleZoom(item, scale_factor);
+    }
+}
 }
 
 void View::on_model_updated(ModelData md)
@@ -189,6 +228,8 @@ void View::on_model_updated(ModelData md)
     QRectF r = m_scene->itemsBoundingRect();
 
     m_view->fitInView(r, Qt::KeepAspectRatio);
+
+    resize::scene(m_scene, m_view);
 }
 
 void View::on_clear_screen_clicked()
@@ -347,6 +388,28 @@ void View::on_key_pressed(QKeyEvent *event)
     } else if (event->key() == Qt::Key_F5) {
         m_model->dbg_emit_updated();
         qDebug() << event->key();
+    } else if (event->key() == Qt::Key_Equal) {
+        resize::scene(m_scene, m_view);
+    } else if (event->key() == Qt::Key_I) {
+        const double sf = 1.2;
+
+        QTransform matrix = m_view->transform();
+        matrix.scale(sf, sf);
+        m_view->setTransform(matrix);
+
+        qDebug() << m_view->transform();
+
+        resize::scene(m_scene, m_view);
+    } else if (event->key() == Qt::Key_O) {
+        const double sf = 0.8;
+
+        QTransform matrix = m_view->transform();
+        matrix.scale(sf, sf);
+        m_view->setTransform(matrix);
+
+        qDebug() << m_view->transform();
+
+        resize::scene(m_scene, m_view);
     }
 }
 
