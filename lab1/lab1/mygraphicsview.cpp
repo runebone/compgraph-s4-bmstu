@@ -7,6 +7,8 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event) {
         emit leftMouseClicked(event);
     } else if (event->button() == Qt::RightButton) {
         emit rightMouseClicked(event);
+    } else if (event->button() == Qt::MiddleButton) {
+        emit middleMouseClicked(event);
     }
 }
 

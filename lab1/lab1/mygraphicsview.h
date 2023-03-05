@@ -18,6 +18,7 @@ protected:
 signals:
     void leftMouseClicked(QMouseEvent *event);
     void rightMouseClicked(QMouseEvent *event);
+    void middleMouseClicked(QMouseEvent *event);
 
     void keyPressed(QKeyEvent *event);
 };
