@@ -39,16 +39,17 @@ private:
 
     // XXX: Ugly way
     void addMyPointWidgetToLayout(QLayout *layout, MyPointWidget *mpw);
-    void addPointsToLayout(QLayout *layout, std::vector<Point> &points, Set set);
+    void addPointsToLayout(QLayout *layout, const std::vector<Point> &points, Set set);
 
 public slots:
     void on_model_updated(ModelData);
 
     void on_clear_screen_clicked();
 
-    // void on_key_pressed(QKeyEvent*);
-    // void on_left_mouse_clicked(QMouseEvent*);
-    // void on_right_mouse_clicked(QMouseEvent*);
+    void on_key_pressed(QKeyEvent*);
+    void on_left_mouse_clicked(QMouseEvent*);
+    void on_right_mouse_clicked(QMouseEvent*);
+    void on_middle_mouse_clicked(QMouseEvent*);
 
 private slots:
     // XXX: Ugly way
@@ -61,5 +62,8 @@ private slots:
 signals:
 
 };
+
+// XXX extreme ugliness
+bool operator==(const Point lhs, const Point rhs);
 
 #endif // VIEW_H

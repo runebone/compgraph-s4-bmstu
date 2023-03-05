@@ -2,6 +2,20 @@
 
 #include <QWidget>
 #include <QGraphicsObject>
+#include "solution_data.h"
+
+#include "mypointitem.h"
+
+#define RED QColor("#ef2f27")
+#define BLUE QColor("#2c78bf")
+
+#define FIRST_SET_COLOR RED
+#define SECOND_SET_COLOR BLUE
+
+#define FILL_COLOR QColor("#fbb829")
+
+#define POINT_SIZE 1.0
+#define LINES_WIDTH 1.0
 
 View::View(MyGraphicsView *graphicsView, QScrollArea *leftScrollArea, QScrollArea *rightScrollArea, QLabel *infoLabel, QObject *parent)
 {
@@ -60,7 +74,7 @@ void View::addMyPointWidgetToLayout(QLayout *layout, MyPointWidget *mpw) {
     }
 }
 
-void View::addPointsToLayout(QLayout *layout, std::vector<Point> &points, Set set) {
+void View::addPointsToLayout(QLayout *layout, const std::vector<Point> &points, Set set) {
     int i = 0;
     for (Point p: points) {
         MyPointWidget *mpw = new MyPointWidget(i, p);
@@ -83,6 +97,83 @@ void clearScene(QGraphicsScene *scene) {
     scene->clear();
 }
 
+namespace draw {
+void point(QGraphicsScene *scene, const Point &p, QColor color) {
+    MyPointItem *figure = new MyPointItem(p.x, p.y, POINT_SIZE, POINT_SIZE, color);
+    scene->addItem(figure);
+}
+
+void circle(QGraphicsScene *scene, const Point &center, double radius, QColor color) {
+    qreal w = 2 * radius;
+    qreal h = 2 * radius;
+    QGraphicsEllipseItem *figure = new QGraphicsEllipseItem(0, 0, w, h);
+
+    figure->setPos(center.x - w/2, -center.y - h/2); // XXX: -y
+    figure->setPen(QPen(color, LINES_WIDTH));
+
+    scene->addItem(figure);
+}
+
+void polygon(QGraphicsScene *scene, const std::vector<Point> &vertices, QColor color, bool fill = false) {
+    QPolygonF polygon;
+
+    for (Point p: vertices) {
+        polygon << QPointF(p.x, -p.y); // XXX: -y
+    }
+
+    QGraphicsPolygonItem *figure = new QGraphicsPolygonItem(polygon);
+    figure->setPen(QPen(color, LINES_WIDTH));
+
+    if (fill) {
+        figure->setBrush(FILL_COLOR);
+    }
+
+    scene->addItem(figure);
+}
+
+void model(QGraphicsScene *scene, const ModelData &md, QColor first = FIRST_SET_COLOR, QColor second = SECOND_SET_COLOR) {
+    SolutionData sd = md.solutionData;
+    err_t status = sd.get_status();
+
+    for (Point p: md.firstSetPoints) {
+        draw::point(scene, p, first);
+    }
+
+    for (Point p: md.secondSetPoints) {
+        draw::point(scene, p, second);
+    }
+
+    if (isNotError(status)) {
+        std::vector<Point> polygon;
+        Point center;
+        double radius;
+
+        // Drawing primitives from the first set
+        sd.get_first_hexagon(polygon);
+        draw::polygon(scene, polygon, first);
+        sd.get_first_circle_center(center);
+        sd.get_first_circle_radius(radius);
+        draw::circle(scene, center, radius, first);
+
+        // Drawing primitives from the second
+        sd.get_second_hexagon(polygon);
+        draw::polygon(scene, polygon, second);
+        sd.get_second_circle_center(center);
+        sd.get_second_circle_radius(radius);
+        draw::circle(scene, center, radius, second);
+
+        if (status == OK) {
+            // Draw intersection polygon
+            sd.get_polygon(polygon);
+            draw::polygon(scene, polygon, Qt::black, true);
+        }
+    }
+}
+}
+
+namespace resize {
+}
+
 void View::on_model_updated(ModelData md)
 {
     clearLayout(m_leftLayout);
@@ -92,12 +183,171 @@ void View::on_model_updated(ModelData md)
     addPointsToLayout(m_rightLayout, md.secondSetPoints, SECOND);
 
     clearScene(m_scene);
-    // TODO
+
+    draw::model(m_scene, md);
+
+    QRectF r = m_scene->itemsBoundingRect();
+
+    m_view->fitInView(r, Qt::KeepAspectRatio);
 }
 
 void View::on_clear_screen_clicked()
 {
-    m_model->dbg_emit_updated();
+    // TODO
+}
+
+
+void View::on_left_mouse_clicked(QMouseEvent *event)
+{
+    QPoint viewPos = m_view->mapFromGlobal(QCursor::pos());
+    QPointF scenePos = m_view->mapToScene(viewPos);
+
+    qDebug() << scenePos;
+
+    Point p = { scenePos.x(), -scenePos.y() }; // XXX: -y
+
+    m_model->add_point(p, FIRST);
+}
+
+void View::on_right_mouse_clicked(QMouseEvent *event)
+{
+    QPoint viewPos = m_view->mapFromGlobal(QCursor::pos());
+    QPointF scenePos = m_view->mapToScene(viewPos);
+
+    qDebug() << scenePos;
+
+    Point p = { scenePos.x(), -scenePos.y() }; // XXX: -y
+
+    m_model->add_point(p, SECOND);
+}
+
+namespace selection {
+void toggle(QGraphicsItem *item) {
+    if (!item->isSelected()) {
+        item->setSelected(true);
+        item->setOpacity(0.5);
+    } else {
+        item->setSelected(false);
+        item->setOpacity(1.0);
+    }
+}
+
+void deselect_all_points_except_given(QGraphicsScene *scene, QGraphicsItem *my_point_item) {
+    for (QGraphicsItem* item: scene->items()) {
+        if (item != nullptr && item->type() == MyPointItem::Type) {
+            if (item != my_point_item && item->isSelected()) {
+                selection::toggle(item);
+            }
+        }
+    }
+}
+
+MyPointItem* get_selected_point(QGraphicsScene *scene) {
+    MyPointItem *mp = nullptr;
+
+    for (QGraphicsItem *item : scene->items()) {
+        if (item->isSelected() && item->type() == MyPointItem::Type) {
+            mp = qgraphicsitem_cast<MyPointItem*>(item);
+            break; // XXX meh
+        }
+    }
+
+    return mp;
+}
+}
+
+// XXX: only needed for std::find to work
+bool operator==(const Point lhs, const Point rhs) {
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+namespace util { // XXX: give better name
+int get_selected_point_data(QGraphicsScene *scene, Point &out_point, Set &out_set) {
+    MyPointItem *mp = selection::get_selected_point(scene);
+
+    if (mp != nullptr) {
+        QPointF pos = mp->getPos();
+        out_point = { .x = pos.x(), .y = -pos.y() }; // XXX: -y
+        out_set = mp->brush().color() == FIRST_SET_COLOR ? FIRST : SECOND; // XXX very very very bad
+
+        qDebug() << pos;
+    }
+
+    return mp != nullptr ? 0 : -1; // XXX meh
+}
+
+// XXX bad and ugly
+size_t get_point_index(Model *model, const Point &point, Set set) {
+    size_t index;
+
+    if (set == FIRST) {
+        const std::vector<Point> &fsp = model->getData().firstSetPoints;
+        auto item = std::find(fsp.begin(), fsp.end(), point);
+        // XXX it must be there, so do not check if item is not equal to vec.end()
+        index = std::distance(fsp.begin(), item);
+    } else if (set == SECOND) {
+        const std::vector<Point> &ssp = model->getData().secondSetPoints;
+        auto item = std::find(ssp.begin(), ssp.end(), point);
+        // XXX it must be there
+        index = std::distance(ssp.begin(), item);
+    }
+
+    return index;
+}
+
+#include <algorithm>
+void delete_selected_points(QGraphicsScene *scene, Model *model) {
+    Point point;
+    Set set;
+
+    // XXX
+    int rc = util::get_selected_point_data(scene, point, set);
+    if (rc == 0) {
+        size_t index = util::get_point_index(model, point, set);
+        model->remove_point(index, set);
+    }
+}
+}
+
+void View::on_middle_mouse_clicked(QMouseEvent *event)
+{
+    QPointF cursorPos = m_view->mapToScene(event->pos());
+    QGraphicsItem* item = m_scene->itemAt(cursorPos, m_view->transform());
+
+    if (item != nullptr && item->type() == MyPointItem::Type) {
+        if (!item->isSelected()) {
+            selection::toggle(item);
+            selection::deselect_all_points_except_given(m_scene, item);
+            qDebug() << "Selected point." << qgraphicsitem_cast<MyPointItem*>(item)->getPos();
+        } else {
+            selection::toggle(item);
+            qDebug() << "Deselected point." << qgraphicsitem_cast<MyPointItem*>(item)->getPos();
+        }
+    } else if (item == nullptr) {
+        Point point;
+        Set set;
+        int rc = util::get_selected_point_data(m_scene, point, set);
+        if (rc == 0) {
+            size_t index = util::get_point_index(m_model, point, set);
+
+            point = { cursorPos.x(), -cursorPos.y() }; // XXX: -y
+
+            // qDebug() << index;
+            m_model->update_point(index, point, set);
+        }
+    }
+}
+
+void View::on_key_pressed(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Delete) {
+        // TODO
+        util::delete_selected_points(m_scene, m_model);
+        qDebug() << event->key();
+    } else if (event->key() == Qt::Key_F5) {
+        m_model->dbg_emit_updated();
+        qDebug() << event->key();
+    }
 }
 
 void View::on_point_x_changed(size_t index, double value, Set set)
@@ -105,6 +355,7 @@ void View::on_point_x_changed(size_t index, double value, Set set)
     Point p = m_model->get_point(index, set);
     p.x = value;
     m_model->update_point(index, p, set);
+    // m_model->dbg_emit_updated();
 }
 
 void View::on_point_y_changed(size_t index, double value, Set set)
@@ -112,6 +363,7 @@ void View::on_point_y_changed(size_t index, double value, Set set)
     Point p = m_model->get_point(index, set);
     p.y = value;
     m_model->update_point(index, p, set);
+    // m_model->dbg_emit_updated();
 }
 
 void View::on_point_remove_clicked(size_t index, Set set)
