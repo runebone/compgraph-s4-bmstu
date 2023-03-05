@@ -10,6 +10,8 @@ MyPointItem::MyPointItem(qreal x, qreal y, qreal w, qreal h, QColor color, QGrap
 
     setPen(QPen(Qt::NoPen));
     setBrush(color);
+
+    setFlag(ItemIsSelectable, true);
 }
 
 void MyPointItem::setXY(qreal x, qreal y)
