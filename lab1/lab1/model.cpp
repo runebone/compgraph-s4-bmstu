@@ -135,7 +135,6 @@ void Model::dbg_update_point(size_t index, const Point &point, Set set)
     } else if (set == SECOND) {
         auto &vec = m_modelData.secondSetPoints;
         vec.at(index) = point;
-        emit updated(m_modelData);
         emit dbg_updated();
     }
 }
