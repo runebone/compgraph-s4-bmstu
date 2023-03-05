@@ -404,7 +404,7 @@ void View::on_key_pressed(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Delete) {
         util::delete_selected_points(m_scene, m_model);
-    } else if (event->key() == Qt::Key_F5) {
+    } else if (event->key() == Qt::Key_F5 || event->key() == Qt::Key_R) {
         m_model->dbg_emit_updated();
     } else if (event->key() == Qt::Key_Equal) {
         resize::fit(m_scene, m_view);
