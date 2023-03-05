@@ -241,7 +241,7 @@ void View::on_model_updated(ModelData md)
 
 void View::on_clear_screen_clicked()
 {
-    // TODO
+    clearScene(m_scene);
 }
 
 
