@@ -28,6 +28,8 @@ private:
     // XXX: Just for connecting the signals of MyPointWidgets
     Model *m_model;
 
+    QTransform m_transform;
+
 public slots:
     void on_model_updated(ModelData);
 

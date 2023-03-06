@@ -15,6 +15,11 @@ View::View(MyGraphicsView *graphicsView, QObject *parent)
 
     m_scene = new MyGraphicsScene(this);
     m_view->setScene(m_scene);
+
+    m_transform = QTransform();
+    m_transform.setMatrix(1.0, 0.0, 0.0,
+                          0.0, 1.0, 0.0,
+                          0.0, 0.0, 1.0);
 }
 
 void View::setModel(Model *model)
@@ -76,6 +81,21 @@ namespace draw {
 
     // scene->addItem(figure);
 // }
+void model(QGraphicsScene *scene, ModelData md) {
+    QGraphicsItemGroup *groupItem = new QGraphicsItemGroup();
+
+    for (auto line: md.lines) {
+        qreal x1 = static_cast<qreal>(md.vertices.at(line.a).a);
+        qreal y1 = static_cast<qreal>(md.vertices.at(line.a).b);
+        qreal x2 = static_cast<qreal>(md.vertices.at(line.b).a);
+        qreal y2 = static_cast<qreal>(md.vertices.at(line.b).b);
+        QGraphicsLineItem *lineItem = new QGraphicsLineItem(x1, y1, x2, y2);
+
+        groupItem->addToGroup(lineItem);
+    }
+
+    scene->addItem(groupItem);
+}
 }
 
 namespace resize {
@@ -92,21 +112,50 @@ void fit(QGraphicsScene *scene, QGraphicsView *view) {
 }
 }
 
+namespace transform {
+void apply(QGraphicsScene *scene, QTransform transform) {
+    for (QGraphicsItem *item : scene->items()) {
+        QTransform t_current = item->transform();
+        QTransform t_new = transform * t_current;
+        item->setTransform(t_new);
+    }
+}
+
+QTransform get_translation(qreal dx, qreal dy) {
+    QTransform matrix;
+    matrix.setMatrix(
+                1.0, 0.0, 0.0,
+                0.0, 1.0, 0.0,
+                dx, dy, 1.0
+                );
+    return matrix;
+}
+
+QTransform get_scale(qreal sx, qreal sy) {
+    QTransform matrix;
+    matrix.setMatrix(
+                sx, 0.0, 0.0,
+                0.0, sy, 0.0,
+                0.0, 0.0, 1.0
+                );
+    return matrix;
+}
+
+QTransform get_rotation(qreal degrees) {
+    QTransform matrix;
+    qreal theta = degrees * M_PI / 180;
+    matrix.setMatrix(
+                cos(theta), -sin(theta), 0.0,
+                sin(theta), cos(theta), 0.0,
+                0.0, 0.0, 1.0
+                );
+    return matrix;
+}
+}
+
 void View::on_model_updated(ModelData md)
 {
-    QGraphicsItemGroup *groupItem = new QGraphicsItemGroup();
-
-    for (auto line: md.lines) {
-        qreal x1 = static_cast<qreal>(md.vertices.at(line.a).a);
-        qreal y1 = static_cast<qreal>(md.vertices.at(line.a).b);
-        qreal x2 = static_cast<qreal>(md.vertices.at(line.b).a);
-        qreal y2 = static_cast<qreal>(md.vertices.at(line.b).b);
-        QGraphicsLineItem *lineItem = new QGraphicsLineItem(x1, y1, x2, y2);
-
-        groupItem->addToGroup(lineItem);
-    }
-
-    m_scene->addItem(groupItem);
+    draw::model(m_scene, md);
 
     QRectF r = m_scene->itemsBoundingRect();
     m_view->fitInView(r, Qt::KeepAspectRatio);
@@ -114,7 +163,7 @@ void View::on_model_updated(ModelData md)
     resize::scene(m_scene, m_view);
     resize::fit(m_scene, m_view); // XXX
 
-    qDebug() << "lets goooooooooo";
+    qDebug() << "model updated";
 }
 
 void View::on_mouse_clicked(QMouseEvent *event)
@@ -123,29 +172,62 @@ void View::on_mouse_clicked(QMouseEvent *event)
     // QPointF scenePos = m_view->mapToScene(viewPos);
 }
 
+#define TRANSLATION_SPEED 1.0
+#define ANGLE 5.0
+#define SCALE 0.2
 void View::on_key_pressed(QKeyEvent *event)
 {
-    // if (event->key() == Qt::Key_Delete) {
-        // util::delete_selected_points(m_scene, m_model);
-    // } else if (event->key() == Qt::Key_F5 || event->key() == Qt::Key_R) {
-        // m_model->dbg_emit_updated();
-    // } else if (event->key() == Qt::Key_Equal) {
-        // resize::fit(m_scene, m_view);
-    // } else if (event->key() == Qt::Key_I) {
-        // const double sf = 1.2; // XXX meh hardcode
-
-        // QTransform matrix = m_view->transform();
-        // matrix.scale(sf, sf);
-        // m_view->setTransform(matrix);
-
-        // resize::scene(m_scene, m_view);
-    // } else if (event->key() == Qt::Key_O) {
-        // const double sf = 0.8; // XXX
-
-        // QTransform matrix = m_view->transform();
-        // matrix.scale(sf, sf);
-        // m_view->setTransform(matrix);
-
-        // resize::scene(m_scene, m_view);
-    // }
+    if (event->key() == Qt::Key_I) {
+        qreal sf = 1.0 + SCALE;
+        QTransform matrix = transform::get_scale(sf, sf);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_O) {
+        qreal sf = 1.0 - SCALE;
+        QTransform matrix = transform::get_scale(sf, sf);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_H) {
+        qreal dx = TRANSLATION_SPEED;
+        qreal dy = 0.0;
+        QTransform matrix = transform::get_translation(dx, dy);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_J) {
+        qreal dx = 0.0;
+        qreal dy = TRANSLATION_SPEED;
+        QTransform matrix = transform::get_translation(dx, dy);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_K) {
+        qreal dx = 0.0;
+        qreal dy = -TRANSLATION_SPEED;
+        QTransform matrix = transform::get_translation(dx, dy);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_L) {
+        qreal dx = -TRANSLATION_SPEED;
+        qreal dy = 0.0;
+        QTransform matrix = transform::get_translation(dx, dy);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_Q) {
+        QTransform matrix = transform::get_rotation(ANGLE);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_E) {
+        QTransform matrix = transform::get_rotation(-ANGLE);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_A) {
+        qreal sf = 1.0 + SCALE;
+        QTransform matrix = transform::get_scale(sf, 1.0);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_D) {
+        qreal sf = 1.0 - SCALE;
+        QTransform matrix = transform::get_scale(sf, 1.0);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_W) {
+        qreal sf = 1.0 - SCALE;
+        QTransform matrix = transform::get_scale(1.0, sf);
+        transform::apply(m_scene, matrix);
+    } else if (event->key() == Qt::Key_S) {
+        qreal sf = 1.0 + SCALE;
+        QTransform matrix = transform::get_scale(1.0, sf);
+        transform::apply(m_scene, matrix);
+    }
 }
+
+// TODO: QPointF center = view.mapToScene(view.viewport()->rect().center());
