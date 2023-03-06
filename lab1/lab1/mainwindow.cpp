@@ -5,13 +5,17 @@ QString get_task_text() {
     return QString("Заданы два множества точек на плоскости. В каждом множестве найти три равноудалѐнные друг от друга точки. Через эти точки провести окружности. В каждую окружность вписать шестиугольник. Найти площадь пересечения двух получившихся шестиугольников.");
 }
 
+QString get_control_text() {
+    return QString("Управление:\nI - приблизить, O - отдалить, = - уместить всё, R - обновить экран (после изменения координат точек);\nЛКМ - установить точку из первого множества,\nПКМ - установить точку из второго множества,\nСКМ - выбрать точку/переместить выбранную точку.");
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    this->ui->descriptionLabel->setText(get_task_text());
+    this->ui->descriptionLabel->setText(get_control_text());
 
     // Create MVC
     Model *model = new Model;
